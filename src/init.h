@@ -6,6 +6,7 @@
 #define BITCOIN_INIT_H
 
 #include "wallet.h"
+#include "tor/mojocoin.h"
 
 namespace boost {
     class thread_group;
@@ -17,6 +18,6 @@ bool ShutdownRequested();
 void Shutdown();
 bool AppInit2(boost::thread_group& threadGroup);
 std::string HelpMessage();
-extern bool fOnlyTor;
+extern bool fDarkEnabled;
 
 #endif

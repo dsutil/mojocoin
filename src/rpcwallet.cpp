@@ -217,13 +217,13 @@ Value getnewaddress(const Array& params, bool fHelp)
     if (fHelp || params.size() > 1)
         throw runtime_error(
             "getnewaddress ( \"account\" )\n"
-            "\nReturns a new Transfer address for receiving payments.\n"
+            "\nReturns a new Mojocoin address for receiving payments.\n"
             "If 'account' is specified (recommended), it is added to the address book \n"
             "so payments received with the address will be credited to 'account'.\n"
             "\nArguments:\n"
             "1. \"account\"        (string, optional) The account name for the address to be linked to. if not provided, the default account \"\" is used. It can also be set to the empty string \"\" to represent the default account. The account does not need to exist, it will be created if there is no account by the given name.\n"
             "\nResult:\n"
-            "\"transferaddress\"    (string) The new Transfer address\n"
+            "\"mojocoinaddress\"    (string) The new Mojocoin address\n"
             "\nExamples:\n"
             + HelpExampleCli("getnewaddress", "")
             + HelpExampleCli("getnewaddress", "\"\"")
@@ -294,11 +294,11 @@ Value getaccountaddress(const Array& params, bool fHelp)
     if (fHelp || params.size() != 1)
         throw runtime_error(
             "getaccountaddress \"account\"\n"
-            "\nReturns the current Transfer address for receiving payments to this account.\n"
+            "\nReturns the current Mojocoin address for receiving payments to this account.\n"
             "\nArguments:\n"
             "1. \"account\"       (string, required) The account name for the address. It can also be set to the empty string \"\" to represent the default account. The account does not need to exist, it will be created and a new address created  if there is no account by the given name.\n"
             "\nResult:\n"
-            "\"transferaddress\"   (string) The account Transfer address\n"
+            "\"mojocoinaddress\"   (string) The account Mojocoin address\n"
             "\nExamples:\n"
             + HelpExampleCli("getaccountaddress", "")
             + HelpExampleCli("getaccountaddress", "\"\"")
@@ -322,10 +322,10 @@ Value setaccount(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() < 1 || params.size() > 2)
         throw runtime_error(
-            "setaccount \"transferaddress\" \"account\"\n"
+            "setaccount \"mojocoinaddress\" \"account\"\n"
             "\nSets the account associated with the given address.\n"
             "\nArguments:\n"
-            "1. \"transferaddress\"  (string, required) The Transfer address to be associated with an account.\n"
+            "1. \"mojocoinaddress\"  (string, required) The Mojocoin address to be associated with an account.\n"
             "2. \"account\"         (string, required) The account to assign the address to.\n"
             "\nExamples:\n"
             + HelpExampleCli("setaccount", "\"TfFxcTN7BJQp88cPJYRvFpUAAKefTib9uh\" \"tabby\"")
@@ -334,7 +334,7 @@ Value setaccount(const Array& params, bool fHelp)
 
     CBitcoinAddress address(params[0].get_str());
     if (!address.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Transfer address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Mojocoin address");
 
 
     string strAccount;
@@ -364,10 +364,10 @@ Value getaccount(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
         throw runtime_error(
-            "getaccount \"transferaddress\"\n"
+            "getaccount \"mojocoinaddress\"\n"
             "\nReturns the account associated with the given address.\n"
             "\nArguments:\n"
-            "1. \"transferaddress\"  (string, required) The Transfer address for account lookup.\n"
+            "1. \"mojocoinaddress\"  (string, required) The Mojocoin address for account lookup.\n"
             "\nResult:\n"
             "\"accountname\"        (string) the account address\n"
             "\nExamples:\n"
@@ -377,7 +377,7 @@ Value getaccount(const Array& params, bool fHelp)
 
     CBitcoinAddress address(params[0].get_str());
     if (!address.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Transfer address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Mojocoin address");
 
     string strAccount;
     map<CTxDestination, string>::iterator mi = pwalletMain->mapAddressBook.find(address.Get());
@@ -397,7 +397,7 @@ Value getaddressesbyaccount(const Array& params, bool fHelp)
             "1. \"account\"  (string, required) The account name.\n"
             "\nResult:\n"
             "[                     (json array of string)\n"
-            "  \"transferaddress\"  (string) a Transfer address associated with the given account\n"
+            "  \"mojocoinaddress\"  (string) a Mojocoin address associated with the given account\n"
             "  ,...\n"
             "]\n"
             "\nExamples:\n"
@@ -423,12 +423,12 @@ Value sendtoaddress(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() < 2 || params.size() > 4)
         throw runtime_error(
-            "sendtoaddress \"transferaddress\" amount ( \"comment\" \"comment-to\" )\n"
+            "sendtoaddress \"mojocoinaddress\" amount ( \"comment\" \"comment-to\" )\n"
             "\nSent an amount to a given address. The amount is a real and is rounded to the nearest 0.00000001\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
-           "1. \"transferaddress\"  (string, required) The Transfer address to send to.\n"
-            "2. \"amount\"      (numeric, required) The amount in TX to send. eg 0.1\n"
+           "1. \"mojocoinaddress\"  (string, required) The Mojocoin address to send to.\n"
+            "2. \"amount\"      (numeric, required) The amount in MOJO to send. eg 0.1\n"
             "3. \"comment\"     (string, optional) A comment used to store what the transaction is for. \n"
             "                             This is not part of the transaction, just kept in your wallet.\n"
             "4. \"comment-to\"  (string, optional) A comment to store the name of the person or organization \n"
@@ -450,7 +450,7 @@ Value sendtoaddress(const Array& params, bool fHelp)
 
     CBitcoinAddress address(params[0].get_str());
     if (!address.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Transfer address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Mojocoin address");
 
     // Amount
     CAmount nAmount = AmountFromValue(params[1]);
@@ -488,7 +488,7 @@ Value listaddressgroupings(const Array& params, bool fHelp)
             "[\n"
             "  [\n"
             "    [\n"
-            "      \"transferaddress\",     (string) The Transfer address\n"
+            "      \"mojocoinaddress\",     (string) The Mojocoin address\n"
             "      amount,                 (numeric) The amount in btc\n"
             "      \"account\"             (string, optional) The account\n"
             "    ]\n"
@@ -527,11 +527,11 @@ Value signmessage(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 2)
         throw runtime_error(
-            "signmessage \"transferaddress\" \"message\"\n"
+            "signmessage \"mojocoinaddress\" \"message\"\n"
             "\nSign a message with the private key of an address"
             + HelpRequiringPassphrase() + "\n"
             "\nArguments:\n"
-            "1. \"transferaddress\"  (string, required) The Transfer address to use for the private key.\n"
+            "1. \"mojocoinaddress\"  (string, required) The Mojocoin address to use for the private key.\n"
             "2. \"message\"         (string, required) The message to create a signature of.\n"
             "\nResult:\n"
             "\"signature\"          (string) The signature of the message encoded in base 64\n"
@@ -578,13 +578,13 @@ Value getreceivedbyaddress(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() < 1 || params.size() > 2)
         throw runtime_error(
-            "getreceivedbyaddress \"transferaddress\" ( minconf )\n"
-            "\nReturns the total amount received by the given transferaddress in transactions with at least minconf confirmations.\n"
+            "getreceivedbyaddress \"mojocoinaddress\" ( minconf )\n"
+            "\nReturns the total amount received by the given mojocoinaddress in transactions with at least minconf confirmations.\n"
             "\nArguments:\n"
-            "1. \"transferaddress\"  (string, required) The Transfer address for transactions.\n"
+            "1. \"mojocoinaddress\"  (string, required) The Mojocoin address for transactions.\n"
             "2. minconf             (numeric, optional, default=1) Only include transactions confirmed at least this many times.\n"
             "\nResult:\n"
-            "amount   (numeric) The total amount in TX received at this address.\n"
+            "amount   (numeric) The total amount in MOJO received at this address.\n"
             "\nExamples:\n"
             "\nThe amount from transactions with at least 1 confirmation\n"
             + HelpExampleCli("getreceivedbyaddress", "\"TfFxcTN7BJQp88cPJYRvFpUAAKefTib9uh\"") +
@@ -600,7 +600,7 @@ Value getreceivedbyaddress(const Array& params, bool fHelp)
     CBitcoinAddress address = CBitcoinAddress(params[0].get_str());
     CScript scriptPubKey;
     if (!address.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Transfer address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Mojocoin address");
     scriptPubKey.SetDestination(address.Get());
     if (!IsMine(*pwalletMain,scriptPubKey))
         return (double)0.0;
@@ -649,7 +649,7 @@ Value getreceivedbyaccount(const Array& params, bool fHelp)
             "1. \"account\"      (string, required) The selected account, may be the default account using \"\".\n"
             "2. minconf          (numeric, optional, default=1) Only include transactions confirmed at least this many times.\n"
             "\nResult:\n"
-            "amount              (numeric) The total amount in TX received for this account.\n"
+            "amount              (numeric) The total amount in MOJO received for this account.\n"
             "\nExamples:\n"
             "\nAmount received by the default account with at least 1 confirmation\n"
             + HelpExampleCli("getreceivedbyaccount", "\"\"") +
@@ -740,7 +740,7 @@ Value getbalance(const Array& params, bool fHelp)
             "2. minconf          (numeric, optional, default=1) Only include transactions confirmed at least this many times.\n"
             "3. includeWatchonly (bool, optional, default=false) Also include balance in watchonly addresses (see 'importaddress')\n"
             "\nResult:\n"
-            "amount              (numeric) The total amount in TX received for this account.\n"
+            "amount              (numeric) The total amount in MOJO received for this account.\n"
             "\nExamples:\n"
             "\nThe total amount in the server across all accounts\n"
             + HelpExampleCli("getbalance", "") +
@@ -817,11 +817,11 @@ Value movecmd(const Array& params, bool fHelp)
             "\nResult:\n"
             "true|false           (boolean) true if successfull.\n"
             "\nExamples:\n"
-            "\nMove 0.01 TX from the default account to the account named tabby\n"
+            "\nMove 0.01 MOJO from the default account to the account named tabby\n"
             + HelpExampleCli("move", "\"\" \"tabby\" 0.01") +
-            "\nMove 0.01 TX timotei to akiko with a comment and funds have 10 confirmations\n"
+            "\nMove 0.01 MOJO timotei to akiko with a comment and funds have 10 confirmations\n"
             + HelpExampleCli("move", "\"timotei\" \"akiko\" 0.01 10 \"happy birthday!\"") +
-            "\nAs a json TX call\n"
+            "\nAs a json MOJO call\n"
             + HelpExampleRpc("move", "\"timotei\", \"akiko\", 0.01, 10, \"happy birthday!\"")
         );
 
@@ -875,14 +875,14 @@ Value sendfrom(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() < 3 || params.size() > 7)
         throw runtime_error(
-            "sendfrom \"fromaccount\" \"totransferaddress\" amount ( minconf \"comment\" \"comment-to\" )\n"
-            "\nSent an amount from an account to a Transfer address.\n"
+            "sendfrom \"fromaccount\" \"tomojocoinaddress\" amount ( minconf \"comment\" \"comment-to\" )\n"
+            "\nSent an amount from an account to a Mojocoin address.\n"
             "The amount is a real and is rounded to the nearest 0.00000001."
             + HelpRequiringPassphrase() + "\n"
             "\nArguments:\n"
             "1. \"fromaccount\"       (string, required) The name of the account to send funds from. May be the default account using \"\".\n"
-            "2. \"totransferaddress\"  (string, required) The Transfer address to send funds to.\n"
-            "3. amount                (numeric, required) The amount in TX. (transaction fee is added on top).\n"
+            "2. \"tomojocoinaddress\"  (string, required) The Mojocoin address to send funds to.\n"
+            "3. amount                (numeric, required) The amount in MOJO. (transaction fee is added on top).\n"
             "4. minconf               (numeric, optional, default=1) Only use funds with at least this many confirmations.\n"
             "5. \"comment\"           (string, optional) A comment used to store what the transaction is for. \n"
             "                                     This is not part of the transaction, just kept in your wallet.\n"
@@ -892,7 +892,7 @@ Value sendfrom(const Array& params, bool fHelp)
             "\nResult:\n"
             "\"transactionid\"        (string) The transaction id.\n"
             "\nExamples:\n"
-            "\nSend 0.01 TX from the default account to the address, must have at least 1 confirmation\n"
+            "\nSend 0.01 MOJO from the default account to the address, must have at least 1 confirmation\n"
             + HelpExampleCli("sendfrom", "\"\" \"TfFxcTN7BJQp88cPJYRvFpUAAKefTib9uh\" 0.01") +
             "\nSend 0.01 from the tabby account to the given address, funds must have at least 10 confirmations\n"
             + HelpExampleCli("sendfrom", "\"tabby\" \"TfFxcTN7BJQp88cPJYRvFpUAAKefTib9uh\" 0.01 10 \"donation\" \"seans outpost\"") +
@@ -905,7 +905,7 @@ Value sendfrom(const Array& params, bool fHelp)
     string strAccount = AccountFromValue(params[0]);
     CBitcoinAddress address(params[1].get_str());
     if (!address.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Transfer address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Mojocoin address");
     CAmount nAmount = AmountFromValue(params[2]);
 
     int nMinDepth = 1;
@@ -952,7 +952,7 @@ Value sendmany(const Array& params, bool fHelp)
             "1. \"fromaccount\"         (string, required) The account to send the funds from, can be \"\" for the default account\n"
             "2. \"amounts\"             (string, required) A json object with addresses and amounts\n"
             "    {\n"
-            "      \"address\":amount   (numeric) The Transfer address is the key, the numeric amount in TX is the value\n"
+            "      \"address\":amount   (numeric) The Mojocoin address is the key, the numeric amount in MOJO is the value\n"
             "      ,...\n"
             "    }\n"
             "3. minconf                 (numeric, optional, default=1) Only use the balance confirmed at least this many times.\n"
@@ -988,7 +988,7 @@ Value sendmany(const Array& params, bool fHelp)
     {
         CBitcoinAddress address(s.name_);
         if (!address.IsValid())
-            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid Transfer address: ")+s.name_);
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid Mojocoin address: ")+s.name_);
 
         if (setAddress.count(address))
             throw JSONRPCError(RPC_INVALID_PARAMETER, string("Invalid parameter, duplicated address: ")+s.name_);
@@ -1037,20 +1037,20 @@ Value addmultisigaddress(const Array& params, bool fHelp)
     {
         string msg = "addmultisigaddress nrequired [\"key\",...] ( \"account\" )\n"
             "\nAdd a nrequired-to-sign multisignature address to the wallet.\n"
-            "Each key is a Transfer address or hex-encoded public key.\n"
+            "Each key is a Mojocoin address or hex-encoded public key.\n"
             "If 'account' is specified, assign address to that account.\n"
 
             "\nArguments:\n"
             "1. nrequired        (numeric, required) The number of required signatures out of the n keys or addresses.\n"
-            "2. \"keysobject\"   (string, required) A json array of Transfer addresses or hex-encoded public keys\n"
+            "2. \"keysobject\"   (string, required) A json array of Mojocoin addresses or hex-encoded public keys\n"
             "     [\n"
-            "       \"address\"  (string) Transfer address or hex-encoded public key\n"
+            "       \"address\"  (string) Mojocoin address or hex-encoded public key\n"
             "       ...,\n"
             "     ]\n"
             "3. \"account\"      (string, optional) An account to assign the addresses to.\n"
 
             "\nResult:\n"
-            "\"transferaddress\"  (string) A Transfer address associated with the keys.\n"
+            "\"mojocoinaddress\"  (string) A Mojocoin address associated with the keys.\n"
 
             "\nExamples:\n"
             "\nAdd a multisig address from 2 addresses\n"
@@ -1306,7 +1306,7 @@ Value listreceivedbyaddress(const Array& params, bool fHelp)
             "    \"involvesWatchonly\" : \"true\",    (bool) Only returned if imported addresses were involved in transaction\n"
             "    \"address\" : \"receivingaddress\",  (string) The receiving address\n"
             "    \"account\" : \"accountname\",       (string) The account of the receiving address. The default account is \"\".\n"
-            "    \"amount\" : x.xxx,                  (numeric) The total amount in TX received by the address\n"
+            "    \"amount\" : x.xxx,                  (numeric) The total amount in MOJO received by the address\n"
             "    \"confirmations\" : n                (numeric) The number of confirmations of the most recent transaction included\n"
             "    \"bcconfirmations\" : n              (numeric) The number of Blockchain confirmations of the most recent transaction included\n"
             "  }\n"
@@ -1476,13 +1476,13 @@ Value listtransactions(const Array& params, bool fHelp)
             "  {\n"
             "    \"account\":\"accountname\",       (string) The account name associated with the transaction. \n"
             "                                                It will be \"\" for the default account.\n"
-            "    \"address\":\"transferaddress\",    (string) The Transfer address of the transaction. Not present for \n"
+            "    \"address\":\"mojocoinaddress\",    (string) The Mojocoin address of the transaction. Not present for \n"
             "                                                move transactions (category = move).\n"
             "    \"category\":\"send|receive|move\", (string) The transaction category. 'move' is a local (off blockchain)\n"
             "                                                transaction between accounts, and not associated with an address,\n"
             "                                                transaction id or block. 'send' and 'receive' transactions are \n"
             "                                                associated with an address, transaction id and block details\n"
-            "    \"amount\": x.xxx,          (numeric) The amount in TX. This is negative for the 'send' category, and for the\n"
+            "    \"amount\": x.xxx,          (numeric) The amount in MOJO. This is negative for the 'send' category, and for the\n"
             "                                         'move' category for moves outbound. It is positive for the 'receive' category,\n"
             "                                         and for the 'move' category for inbound funds.\n"
             "    \"fee\": x.xxx,             (numeric) The amount of the fee in btc. This is negative and only available for the \n"
@@ -1663,9 +1663,9 @@ Value listsinceblock(const Array& params, bool fHelp)
             "{\n"
             "  \"transactions\": [\n"
             "    \"account\":\"accountname\",       (string) The account name associated with the transaction. Will be \"\" for the default account.\n"
-            "    \"address\":\"transferaddress\",    (string) The Transfer address of the transaction. Not present for move transactions (category = move).\n"
+            "    \"address\":\"mojocoinaddress\",    (string) The Mojocoin address of the transaction. Not present for move transactions (category = move).\n"
             "    \"category\":\"send|receive\",     (string) The transaction category. 'send' has negative amounts, 'receive' has positive amounts.\n"
-            "    \"amount\": x.xxx,          (numeric) The amount in TX. This is negative for the 'send' category, and for the 'move' category for moves \n"
+            "    \"amount\": x.xxx,          (numeric) The amount in MOJO. This is negative for the 'send' category, and for the 'move' category for moves \n"
             "                                          outbound. It is positive for the 'receive' category, and for the 'move' category for inbound funds.\n"
             "    \"fee\": x.xxx,             (numeric) The amount of the fee in btc. This is negative and only available for the 'send' category of transactions.\n"
             "    \"confirmations\": n,       (numeric) The number of confirmations for the transaction. Available for 'send' and 'receive' category of transactions.\n"
@@ -1771,7 +1771,7 @@ Value gettransaction(const Array& params, bool fHelp)
             "  \"details\" : [\n"
             "    {\n"
             "      \"account\" : \"accountname\",  (string) The account name involved in the transaction, can be \"\" for the default account.\n"
-            "      \"address\" : \"transferaddress\",   (string) The Transfer address involved in the transaction\n"
+            "      \"address\" : \"mojocoinaddress\",   (string) The Mojocoin address involved in the transaction\n"
             "      \"category\" : \"send|receive\",    (string) The category, either 'send' or 'receive'\n"
             "      \"amount\" : x.xxx                  (numeric) The amount in btc\n"
             "    }\n"
@@ -1920,7 +1920,7 @@ Value walletpassphrase(const Array& params, bool fHelp)
         throw runtime_error(
             "walletpassphrase \"passphrase\" timeout ( anonymizeonly )\n"
             "\nStores the wallet decryption key in memory for 'timeout' seconds.\n"
-            "This is needed prior to performing transactions related to private keys such as sending TX\n"
+            "This is needed prior to performing transactions related to private keys such as sending MOJO\n"
             "\nArguments:\n"
             "1. \"passphrase\"     (string, required) The wallet passphrase\n"
             "2. timeout            (numeric, required) The time to keep the decryption key in seconds.\n"
@@ -2071,10 +2071,10 @@ Value encryptwallet(const Array& params, bool fHelp)
             "\nExamples:\n"
             "\nEncrypt you wallet\n"
             + HelpExampleCli("encryptwallet", "\"my pass phrase\"") +
-            "\nNow set the passphrase to use the wallet, such as for signing or sending Transfer\n"
+            "\nNow set the passphrase to use the wallet, such as for signing or sending Mojocoin\n"
             + HelpExampleCli("walletpassphrase", "\"my pass phrase\"") +
             "\nNow we can so something like sign\n"
-            + HelpExampleCli("signmessage", "\"transferaddress\" \"test message\"") +
+            + HelpExampleCli("signmessage", "\"mojocoinaddress\" \"test message\"") +
             "\nNow lock the wallet again by removing the passphrase\n"
             + HelpExampleCli("walletlock", "") +
             "\nAs a json rpc call\n"
@@ -2104,7 +2104,7 @@ Value encryptwallet(const Array& params, bool fHelp)
     // slack space in .dat files; that is bad if the old data is
     // unencrypted private keys. So:
     StartShutdown();
-    return "wallet encrypted; Transfer server stopping, restart to run with encrypted wallet. The keypool has been flushed, you need to make a new backup.";
+    return "wallet encrypted; Mojocoin server stopping, restart to run with encrypted wallet. The keypool has been flushed, you need to make a new backup.";
 }
 
 
@@ -2236,7 +2236,7 @@ Value settxfee(const Array& params, bool fHelp)
             "settxfee amount\n"
             "\nSet the transaction fee per kB.\n"
             "\nArguments:\n"
-            "1. amount         (numeric, required) The transaction fee in TX/kB rounded to the nearest 0.00000001\n"
+            "1. amount         (numeric, required) The transaction fee in MOJO/kB rounded to the nearest 0.00000001\n"
             "\nResult\n"
             "true|false        (boolean) Returns true if successful\n"
             "\nExamples:\n"
@@ -2256,7 +2256,7 @@ Value getnewstealthaddress(const Array& params, bool fHelp)
     if (fHelp || params.size() > 1)
         throw runtime_error(
             "getnewstealthaddress [label]\n"
-            "Returns a new Transfer stealth address for receiving payments anonymously.  ");
+            "Returns a new Mojocoin stealth address for receiving payments anonymously.  ");
 
     if (pwalletMain->IsLocked())
         throw runtime_error("Failed: Wallet must be unlocked.");
@@ -2462,7 +2462,7 @@ Value sendtostealthaddress(const Array& params, bool fHelp)
 
     if (!sxAddr.SetEncoded(sEncoded))
     {
-        result.push_back(Pair("result", "Invalid Transfer stealth address."));
+        result.push_back(Pair("result", "Invalid Mojocoin stealth address."));
         return result;
     };
 

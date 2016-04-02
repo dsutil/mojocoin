@@ -1276,7 +1276,7 @@ void CWallet::ReacceptWalletTransactions()
                 }
                 if (fUpdated)
                 {
-                    LogPrintf("ReacceptWalletTransactions found spent coin %s TX %s\n", FormatMoney(wtx.GetCredit(ISMINE_ALL)), wtx.GetHash().ToString());
+                    LogPrintf("ReacceptWalletTransactions found spent coin %s MOJO %s\n", FormatMoney(wtx.GetCredit(ISMINE_ALL)), wtx.GetHash().ToString());
                     wtx.MarkDirty();
                     wtx.WriteToDisk();
                 }
@@ -1772,7 +1772,7 @@ void CWallet::AvailableCoinsForStaking(vector<COutput>& vCoins, unsigned int nSp
 
     {
         LOCK2(cs_main, cs_wallet);
-        int nStakeMinConfirmations = 1440;
+        int nStakeMinConfirmations = 50;
         for (map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
         {
             const CWalletTx* pcoin = &(*it).second;
@@ -2718,7 +2718,7 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, int64_t> >& vecSend, 
                     } else if (coin_type == ONLY_NOT10000IFMN) {
                         strFailReason = _(" Unable to locate enough Darksend non-denominated funds for this transaction.");
                     } else if (coin_type == ONLY_NONDENOMINATED_NOT10000IFMN ) {
-                        strFailReason = _(" Unable to locate enough Darksend non-denominated funds for this transaction that are not equal 1000 TX.");
+                        strFailReason = _(" Unable to locate enough Darksend non-denominated funds for this transaction that are not equal 1000 MOJO.");
                     } else {
                         strFailReason = _(" Unable to locate enough Darksend denominated funds for this transaction.");
                         strFailReason += _(" Darksend uses exact denominated amounts to send funds, you might simply need to anonymize some more coins.");
@@ -2756,7 +2756,7 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, int64_t> >& vecSend, 
                 {
                     // Fill a vout to ourself
                     // TODO: pass in scriptChange instead of reservekey so
-                    // change transaction isn't always pay-to-transfer-address
+                    // change transaction isn't always pay-to-mojocoin-address
                     CScript scriptChange;
 
                     // coin control: send change to custom address
@@ -3621,7 +3621,7 @@ uint64_t CWallet::GetStakeWeight() const
     CTxDB txdb("r");
 
     LOCK2(cs_main, cs_wallet);
-    int nStakeMinConfirmations = 1440;
+    int nStakeMinConfirmations = 50;
 
     BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setCoins)
     {
@@ -4552,7 +4552,7 @@ void CWallet::FixSpentCoins(int& nMismatchFound, int64_t& nBalanceInQuestion, bo
         {
             if (IsMine(pcoin->vout[n]) && pcoin->IsSpent(n) && (txindex.vSpent.size() <= n || txindex.vSpent[n].IsNull()))
             {
-                LogPrintf("FixSpentCoins found lost coin %s TX %s[%d], %s\n",
+                LogPrintf("FixSpentCoins found lost coin %s MOJO %s[%d], %s\n",
                     FormatMoney(pcoin->vout[n].nValue), pcoin->GetHash().ToString(), n, fCheckOnly? "repair not attempted" : "repairing");
                 nMismatchFound++;
                 nBalanceInQuestion += pcoin->vout[n].nValue;
@@ -4564,7 +4564,7 @@ void CWallet::FixSpentCoins(int& nMismatchFound, int64_t& nBalanceInQuestion, bo
             }
             else if (IsMine(pcoin->vout[n]) && !pcoin->IsSpent(n) && (txindex.vSpent.size() > n && !txindex.vSpent[n].IsNull()))
             {
-                LogPrintf("FixSpentCoins found spent coin %s TX %s[%d], %s\n",
+                LogPrintf("FixSpentCoins found spent coin %s MOJO %s[%d], %s\n",
                     FormatMoney(pcoin->vout[n].nValue), pcoin->GetHash().ToString(), n, fCheckOnly? "repair not attempted" : "repairing");
                 nMismatchFound++;
                 nBalanceInQuestion += pcoin->vout[n].nValue;

@@ -30,6 +30,10 @@
 using namespace std;
 using namespace boost;
 
+extern "C" {
+    int tor_main(int argc, char *argv[]);
+}
+
 static const int MAX_OUTBOUND_CONNECTIONS = 300;
 
 bool OpenNetworkConnection(const CAddress& addrConnect, CSemaphoreGrant *grantOutbound = NULL, const char *strDest = NULL, bool fOneShot = false);
@@ -1021,7 +1025,7 @@ void ThreadMapPort()
             }
         }
 
-        string strDesc = "Transfer " + FormatFullVersion();
+        string strDesc = "Mojocoin " + FormatFullVersion();
 
         try {
           while (!ShutdownRequested()) {
@@ -1090,10 +1094,44 @@ void MapPort(bool)
 }
 #endif
 
+// hidden service seeds
+static const char *strMainNetOnionSeed[][1] = {
+    {"cyhtnpwblnpexjov.onion"},
+    {"nmjdopt7atplath3.onion"},
+   {NULL}
+};
 
+static const char *strTestNetOnionSeed[][1] = {
+    {NULL}
+};
 
+void ThreadOnionSeed()
+{
+    //static const char *(*strOnionSeed)[1] = fTestNet ? strTestNetOnionSeed : strMainNetOnionSeed;
+    static const char *(*strOnionSeed)[1] = strMainNetOnionSeed;
 
+    int found = 0;
 
+    printf("Loading addresses from .onion seeds\n");
+
+    for (unsigned int seed_idx = 0; strOnionSeed[seed_idx][0] != NULL; seed_idx++) {
+        CNetAddr parsed;
+        if (
+            !parsed.SetSpecial(
+                strOnionSeed[seed_idx][0]
+            )
+        ) {
+            throw runtime_error("ThreadOnionSeed() : invalid .onion seed");
+        }
+        int nOneDay = 24*3600;
+        CAddress addr = CAddress(CService(parsed, Params().GetDefaultPort()));
+        addr.nTime = GetTime() - 3*nOneDay - GetRand(4*nOneDay); // use a random age between 3 and 7 days old
+        found++;
+        addrman.Add(addr, parsed);
+    }
+
+    printf("%d addresses found from .onion seeds\n", found);
+}
 
 void ThreadDNSAddressSeed()
 {
@@ -1137,14 +1175,6 @@ void ThreadDNSAddressSeed()
 
     LogPrintf("%d addresses found from DNS seeds\n", found);
 }
-
-
-
-
-
-
-
-
 
 void DumpAddresses()
 {
@@ -1572,7 +1602,7 @@ bool BindListenPort(const CService &addrBind, string& strError)
     {
         int nErr = WSAGetLastError();
         if (nErr == WSAEADDRINUSE)
-            strError = strprintf(_("Unable to bind to %s on this computer. Transfer is probably already running."), addrBind.ToString());
+            strError = strprintf(_("Unable to bind to %s on this computer. Mojocoin is probably already running."), addrBind.ToString());
         else
             strError = strprintf(_("Unable to bind to %s on this computer (bind returned error %d, %s)"), addrBind.ToString(), nErr, strerror(nErr));
         LogPrintf("%s\n", strError);
@@ -1646,7 +1676,19 @@ void static Discover(boost::thread_group& threadGroup)
 #endif
 
 }
+static void run_tor() {
+    std::string logDecl = "notice file " + GetDataDir().string() + "/tor/tor.log";
+    char *argvLogDecl = (char*) logDecl.c_str();
 
+    char* argv[] = {
+        "tor",
+        "--hush",
+        "--Log",
+        argvLogDecl
+    };
+
+    tor_main(4, argv);
+}
 void StartNode(boost::thread_group& threadGroup)
 {
     if (semOutbound == NULL) {
@@ -1669,6 +1711,11 @@ void StartNode(boost::thread_group& threadGroup)
     else
         threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "dnsseed", &ThreadDNSAddressSeed));
 
+    if (!GetBoolArg("-onionseed", true))
+        printf(".onion seeding disabled\n");
+    else
+        threadGroup.create_thread(boost::bind(&TraceThread<boost::function<void()> >, "onionseed", &ThreadOnionSeed));
+
 #ifdef USE_UPNP
     // Map ports with UPnP
     MapPort(GetBoolArg("-upnp", USE_UPNP));
@@ -1689,6 +1736,13 @@ void StartNode(boost::thread_group& threadGroup)
     // Dump network addresses
     threadGroup.create_thread(boost::bind(&LoopForever<void (*)()>, "dumpaddr", &DumpAddresses, DUMP_ADDRESSES_INTERVAL * 1000));
 }
+
+void StartTor(boost::thread_group& threadGroup)
+{
+    // run tor
+    threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "tor", &run_tor));
+}
+
 
 bool StopNode()
 {

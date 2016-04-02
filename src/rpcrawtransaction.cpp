@@ -170,7 +170,7 @@ Value listunspent(const Array& params, bool fHelp)
         {
             CBitcoinAddress address(input.get_str());
             if (!address.IsValid())
-                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid Transfer address: ")+input.get_str());
+                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid Mojocoin address: ")+input.get_str());
             if (setAddress.count(address))
                 throw JSONRPCError(RPC_INVALID_PARAMETER, string("Invalid parameter, duplicated address: ")+input.get_str());
            setAddress.insert(address);
@@ -276,7 +276,7 @@ Value createrawtransaction(const Array& params, bool fHelp)
     {
         CBitcoinAddress address(s.name_);
         if (!address.IsValid())
-            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid Transfer address: ")+s.name_);
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid Mojocoin address: ")+s.name_);
 
         if (setAddress.count(address))
             throw JSONRPCError(RPC_INVALID_PARAMETER, string("Invalid parameter, duplicated address: ")+s.name_);
@@ -311,7 +311,7 @@ Value decoderawtransaction(const Array& params, bool fHelp)
         ssData >> tx;
     }
     catch (std::exception &e) {
-        throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "TX decode failed");
+        throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "MOJO decode failed");
     }
 
     Object result;
@@ -376,7 +376,7 @@ Value signrawtransaction(const Array& params, bool fHelp)
             txVariants.push_back(tx);
         }
         catch (std::exception &e) {
-            throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "TX decode failed");
+            throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "MOJO decode failed");
         }
     }
 
@@ -572,7 +572,7 @@ Value sendrawtransaction(const Array& params, bool fHelp)
         ssData >> tx;
     }
     catch (std::exception &e) {
-        throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "TX decode failed");
+        throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "MOJO decode failed");
     }
     uint256 hashTx = tx.GetHash();
 
@@ -591,7 +591,7 @@ Value sendrawtransaction(const Array& params, bool fHelp)
     {
         // push to local node
         if (!AcceptToMemoryPool(mempool, tx, true, NULL))
-            throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "TX rejected");
+            throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "MOJO rejected");
     }
     RelayTransaction(tx, hashTx);
 

@@ -22,6 +22,7 @@
 #include "masternodeconfig.h"
 #include "spork.h"
 #include "smessage.h"
+#include "tor/mojocoin.h"
 
 #ifdef ENABLE_WALLET
 #include "wallet.h"
@@ -56,7 +57,9 @@ unsigned int nNodeLifespan;
 unsigned int nDerivationMethodIndex;
 unsigned int nMinerSleep;
 bool fUseFastIndex;
-bool fOnlyTor = false;
+bool fDarkEnabled = false;
+CService addrOnion;
+unsigned short const onion_port = 9060;
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -109,7 +112,7 @@ void Shutdown()
     TRY_LOCK(cs_Shutdown, lockShutdown);
     if (!lockShutdown) return;
 
-    RenameThread("transfer-shutoff");
+    RenameThread("mojocoin-shutoff");
     mempool.AddTransactionsUpdated(1);
     StopRPCThreads();
     SecureMsgShutdown();
@@ -185,8 +188,8 @@ std::string HelpMessage()
 {
     string strUsage = _("Options:") + "\n";
     strUsage += "  -?                     " + _("This help message") + "\n";
-    strUsage += "  -conf=<file>           " + _("Specify configuration file (default: transfer.conf)") + "\n";
-    strUsage += "  -pid=<file>            " + _("Specify pid file (default: transferd.pid)") + "\n";
+    strUsage += "  -conf=<file>           " + _("Specify configuration file (default: mojocoin.conf)") + "\n";
+    strUsage += "  -pid=<file>            " + _("Specify pid file (default: mojocoind.pid)") + "\n";
     strUsage += "  -datadir=<dir>         " + _("Specify data directory") + "\n";
     strUsage += "  -wallet=<dir>          " + _("Specify wallet file (within data directory)") + "\n";
     strUsage += "  -dbcache=<n>           " + _("Set database cache size in megabytes (default: 25)") + "\n";
@@ -290,7 +293,7 @@ strUsage += "\n" + _("Masternode options:") + "\n";
     strUsage += "\n" + _("Darksend options:") + "\n";
     strUsage += "  -enabledarksend=<n>          " + _("Enable use of automated darksend for funds stored in this wallet (0-1, default: 0)") + "\n";
     strUsage += "  -darksendrounds=<n>          " + _("Use N separate masternodes to anonymize funds  (2-8, default: 2)") + "\n";
-    strUsage += "  -anonymizetransferamount=<n> " + _("Keep N Transfer anonymized (default: 0)") + "\n";
+    strUsage += "  -anonymizemojocoinamount=<n> " + _("Keep N Mojocoin anonymized (default: 0)") + "\n";
     strUsage += "  -liquidityprovider=<n>       " + _("Provide liquidity to Darksend by infrequently mixing coins on a continual basis (0-100, default: 0, 1=very frequent, high fees, 100=very infrequent, low fees)") + "\n";
 
     strUsage += "\n" + _("InstantX options:") + "\n";
@@ -508,7 +511,7 @@ bool AppInit2(boost::thread_group& threadGroup)
 
     // Sanity check
     if (!InitSanityCheck())
-        return InitError(_("Initialization sanity check failed. Transfer is shutting down."));
+        return InitError(_("Initialization sanity check failed. Mojocoin is shutting down."));
 
     std::string strDataDir = GetDataDir().string();
 #ifdef ENABLE_WALLET
@@ -524,12 +527,12 @@ bool AppInit2(boost::thread_group& threadGroup)
     if (file) fclose(file);
     static boost::interprocess::file_lock lock(pathLockFile.string().c_str());
     if (!lock.try_lock())
-        return InitError(strprintf(_("Cannot obtain a lock on data directory %s. Transfer is probably already running."), strDataDir));
+        return InitError(strprintf(_("Cannot obtain a lock on data directory %s. Mojocoin is probably already running."), strDataDir));
 
     if (GetBoolArg("-shrinkdebugfile", !fDebug))
         ShrinkDebugFile();
     LogPrintf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-    LogPrintf("Transfer version %s (%s)\n", FormatFullVersion(), CLIENT_DATE);
+    LogPrintf("Mojocoin version %s (%s)\n", FormatFullVersion(), CLIENT_DATE);
     LogPrintf("Using OpenSSL version %s\n", SSLeay_version(SSLEAY_VERSION));
     if (!fLogTimestamps)
         LogPrintf("Startup time: %s\n", DateTimeStrFormat("%x %H:%M:%S", GetTime()));
@@ -549,7 +552,7 @@ bool AppInit2(boost::thread_group& threadGroup)
     nMasternodeMinProtocol = GetArg("-masternodeminprotocol", MIN_POOL_PEER_PROTO_VERSION);
 
     if (fDaemon)
-        fprintf(stdout, "Transfer server starting\n"); 
+        fprintf(stdout, "Mojocoin server starting\n"); 
 
     int64_t nStart;
 
@@ -673,15 +676,33 @@ bool AppInit2(boost::thread_group& threadGroup)
     } // (!fDisableWallet)
 #endif // ENABLE_WALLET
     // ********************************************************* Step 6: network initialization
+    uiInterface.InitMessage(_("Initialising Tor Network..."));
+    printf("Initialising Tor Network...\n");
 
     RegisterNodeSignals(GetNodeSignals());
 
+    int isfDark = mapArgs.count("-tor");
+
+    if (isfDark == 1)
+    {
+        std::set<enum Network> nets;
+        nets.insert(NET_TOR);
+
+        for (int n = 0; n < NET_MAX; n++) {
+            enum Network net = (enum Network)n;
+            if (!nets.count(net))
+                SetLimited(net);
+        }
+    }
+
+  
     if (mapArgs.count("-onlynet")) {
         std::set<enum Network> nets;
         BOOST_FOREACH(std::string snet, mapMultiArgs["-onlynet"]) {
             enum Network net = ParseNetwork(snet);
-	    if(net == NET_TOR)
-		fOnlyTor = true;
+
+    	    if(net == NET_TOR)
+    		  fDarkEnabled = true;
 
             if (net == NET_UNROUTABLE)
                 return InitError(strprintf(_("Unknown network specified in -onlynet: '%s'"), snet));
@@ -692,7 +713,10 @@ bool AppInit2(boost::thread_group& threadGroup)
             if (!nets.count(net))
                 SetLimited(net);
         }
+    } else {
+        addrOnion = CService("127.0.0.1", onion_port);
     }
+
 
     CService addrProxy;
     bool fProxy = false;
@@ -715,18 +739,18 @@ bool AppInit2(boost::thread_group& threadGroup)
         if (!mapArgs.count("-tor"))
             addrOnion = addrProxy;
         else
-            addrOnion = CService(mapArgs["-tor"], 9050);
+            addrOnion = CService(mapArgs["-tor"], onion_port);
         if (!addrOnion.IsValid())
             return InitError(strprintf(_("Invalid -tor address: '%s'"), mapArgs["-tor"]));
         SetProxy(NET_TOR, addrOnion);
         SetReachable(NET_TOR);
     }
 
-    // see Step 2: parameter interactions for more information about these
+  // see Step 2: parameter interactions for more information about these
     fNoListen = !GetBoolArg("-listen", true);
     fDiscover = GetBoolArg("-discover", true);
     fNameLookup = GetBoolArg("-dns", true);
-
+    fDarkEnabled = GetBoolArg("-tor", true);
     bool fBound = false;
     if (!fNoListen)
     {
@@ -746,6 +770,16 @@ bool AppInit2(boost::thread_group& threadGroup)
             if (!IsLimited(NET_IPV4))
                 fBound |= Bind(CService(inaddr_any, GetListenPort()), !fBound);
         }
+
+        if (isfDark == 1)
+        {
+                CService addrBind;
+
+                if (!Lookup("127.0.0.1", addrBind, GetListenPort(), false))
+                    return InitError(strprintf(_("Cannot resolve binding address: '%s'"), "127.0.0.1"));
+
+                fBound |= Bind(addrBind);
+        }
         if (!fBound)
             return InitError(_("Failed to listen on any port. Use -listen=0 if you want this."));
     }
@@ -758,6 +792,19 @@ bool AppInit2(boost::thread_group& threadGroup)
                 return InitError(strprintf(_("Cannot resolve -externalip address: '%s'"), strAddr));
             AddLocal(CService(strAddr, GetListenPort(), fNameLookup), LOCAL_MANUAL);
         }
+    }
+    if (isfDark == 1)
+    {
+        string automatic_onion;
+        filesystem::path const hostname_path = GetDefaultDataDir() / "onion" / "hostname";
+
+        if (!filesystem::exists(hostname_path)) {
+            return InitError(_("No external address found."));
+        }
+
+        ifstream file(hostname_path.string().c_str());
+        file >> automatic_onion;
+        AddLocal(CService(automatic_onion, GetListenPort(), fNameLookup), LOCAL_MANUAL);
     }
 
 #ifdef ENABLE_WALLET
@@ -773,6 +820,13 @@ bool AppInit2(boost::thread_group& threadGroup)
 
     BOOST_FOREACH(string strDest, mapMultiArgs["-seednode"])
         AddOneShot(strDest);
+
+    if (!(mapArgs.count("-tor") && mapArgs["-tor"] != "0")) {
+        StartTor(threadGroup);
+        wait_initialized();
+        uiInterface.InitMessage(_("Initialising Tor Network..."));
+        printf("Initialising Tor Network...\n");
+    }
 
     // ********************************************************* Step 7: load blockchain
 
@@ -852,10 +906,10 @@ bool AppInit2(boost::thread_group& threadGroup)
                 InitWarning(msg);
             }
             else if (nLoadWalletRet == DB_TOO_NEW)
-                strErrors << _("Error loading wallet.dat: Wallet requires newer version of Transfer") << "\n";
+                strErrors << _("Error loading wallet.dat: Wallet requires newer version of Mojocoin") << "\n";
             else if (nLoadWalletRet == DB_NEED_REWRITE)
             {
-                strErrors << _("Wallet needed to be rewritten: restart Transfer to complete") << "\n";
+                strErrors << _("Wallet needed to be rewritten: restart Mojocoin to complete") << "\n";
                 LogPrintf("%s", strErrors.str());
                 return InitError(strErrors.str());
             }
@@ -1037,7 +1091,7 @@ bool AppInit2(boost::thread_group& threadGroup)
         nDarksendRounds = 99999;
     }
 
-    nAnonymizeTransferAmount = GetArg("-anonymizetransferamount", 0);
+    nAnonymizeTransferAmount = GetArg("-anonymizemojocoinamount", 0);
     if(nAnonymizeTransferAmount > 999999) nAnonymizeTransferAmount = 999999;
     if(nAnonymizeTransferAmount < 2) nAnonymizeTransferAmount = 2;
 
@@ -1054,7 +1108,7 @@ bool AppInit2(boost::thread_group& threadGroup)
     LogPrintf("fLiteMode %d\n", fLiteMode);
     LogPrintf("nInstantXDepth %d\n", nInstantXDepth);
     LogPrintf("Darksend rounds %d\n", nDarksendRounds);
-    LogPrintf("Anonymize Transfer Amount %d\n", nAnonymizeTransferAmount);
+    LogPrintf("Anonymize Mojocoin Amount %d\n", nAnonymizeTransferAmount);
 
     /* Denominations
        A note about convertability. Within Darksend pools, each denomination

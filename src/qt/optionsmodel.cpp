@@ -71,7 +71,7 @@ void OptionsModel::Init()
     if (settings.contains("nDarksendRounds"))
         SoftSetArg("-darksendrounds", settings.value("nDarksendRounds").toString().toStdString());
     if (settings.contains("nAnonymizeTransferAmount"))
-        SoftSetArg("-anonymizetransferamount", settings.value("nAnonymizeTransferAmount").toString().toStdString());
+        SoftSetArg("-anonymizemojocoinamount", settings.value("nAnonymizeTransferAmount").toString().toStdString());
 }
 
 int OptionsModel::rowCount(const QModelIndex & parent) const

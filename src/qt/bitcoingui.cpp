@@ -71,7 +71,7 @@
 
 #include <iostream>
 
-extern bool fOnlyTor;
+extern bool fDarkEnabled;
 extern CWallet* pwalletMain;
 extern int64_t nLastCoinStakeSearchInterval;
 double GetPoSKernelPS();
@@ -96,7 +96,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     nWeight(0)
 {
     resize(900, 520);
-    setWindowTitle(tr("Transfer") + " - " + tr("Wallet"));
+    setWindowTitle(tr("Mojocoin") + " - " + tr("Wallet"));
 #ifndef Q_OS_MAC
     qApp->setWindowIcon(QIcon(":icons/bitcoin"));
     setWindowIcon(QIcon(":icons/bitcoin"));
@@ -104,8 +104,8 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     //setUnifiedTitleAndToolBarOnMac(true);
     QApplication::setAttribute(Qt::AA_DontShowIconsInMenus);
 #endif
-    setObjectName("transfer");
-    setStyleSheet("#transfer { background-color: qradialgradient(cx: -0.8, cy: 0, fx: -0.8, fy: 0, radius: 1.4, stop: 0 #dedede, stop: 1 #efefef);  }");
+    setObjectName("mojocoin");
+    setStyleSheet("#mojocoin { background-color: qradialgradient(cx: -0.8, cy: 0, fx: -0.8, fy: 0, radius: 1.4, stop: 0 #dedede, stop: 1 #efefef);  }");
     // Accept D&D of URIs
     setAcceptDrops(true);
 
@@ -286,7 +286,7 @@ void BitcoinGUI::createActions()
     tabGroup->addAction(receiveCoinsAction);
 
     sendCoinsAction = new QAction(QIcon(":/icons/send"), tr("&Send"), this);
-    sendCoinsAction->setToolTip(tr("Send coins to a Transfer address"));
+    sendCoinsAction->setToolTip(tr("Send coins to a Mojocoin address"));
     sendCoinsAction->setCheckable(true);
     sendCoinsAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_3));
     tabGroup->addAction(sendCoinsAction);
@@ -350,14 +350,14 @@ void BitcoinGUI::createActions()
     quitAction->setToolTip(tr("Quit application"));
     quitAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
     quitAction->setMenuRole(QAction::QuitRole);
-    aboutAction = new QAction(tr("&About Transfer"), this);
-    aboutAction->setToolTip(tr("Show information about Transfer"));
+    aboutAction = new QAction(tr("&About Mojocoin"), this);
+    aboutAction->setToolTip(tr("Show information about Mojocoin"));
     aboutAction->setMenuRole(QAction::AboutRole);
     aboutQtAction = new QAction(tr("About &Qt"), this);
     aboutQtAction->setToolTip(tr("Show information about Qt"));
     aboutQtAction->setMenuRole(QAction::AboutQtRole);
     optionsAction = new QAction(tr("&Options..."), this);
-    optionsAction->setToolTip(tr("Modify configuration options for Transfer"));
+    optionsAction->setToolTip(tr("Modify configuration options for Mojocoin"));
     optionsAction->setMenuRole(QAction::PreferencesRole);
     toggleHideAction = new QAction(QIcon(":/icons/bitcoin"), tr("&Show / Hide"), this);
     encryptWalletAction = new QAction(tr("&Encrypt Wallet..."), this);
@@ -483,7 +483,7 @@ void BitcoinGUI::createToolBars()
 
 void BitcoinGUI::setClientModel(ClientModel *clientModel)
 {
-    if(!fOnlyTor)
+    if(!fDarkEnabled)
     netLabel->setText("CLEARNET");
     else
     {
@@ -508,7 +508,7 @@ void BitcoinGUI::setClientModel(ClientModel *clientModel)
 #endif
             if(trayIcon)
             {
-                trayIcon->setToolTip(tr("Transfer client") + QString(" ") + tr("[testnet]"));
+                trayIcon->setToolTip(tr("Mojocoin client") + QString(" ") + tr("[testnet]"));
                 trayIcon->setIcon(QIcon(":/icons/toolbar_testnet"));
                 toggleHideAction->setIcon(QIcon(":/icons/toolbar_testnet"));
             }
@@ -589,7 +589,7 @@ void BitcoinGUI::createTrayIcon()
     trayIcon = new QSystemTrayIcon(this);
     trayIconMenu = new QMenu(this);
     trayIcon->setContextMenu(trayIconMenu);
-    trayIcon->setToolTip(tr("Transfer client"));
+    trayIcon->setToolTip(tr("Mojocoin client"));
     trayIcon->setIcon(QIcon(":/icons/toolbar"));
     connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
             this, SLOT(trayIconActivated(QSystemTrayIcon::ActivationReason)));
@@ -660,7 +660,7 @@ void BitcoinGUI::setNumConnections(int count)
     default: icon = fUseBlackTheme ? ":/icons/black/connect_4" : ":/icons/connect_4"; break;
     }
     labelConnectionsIcon->setPixmap(QIcon(icon).pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
-    labelConnectionsIcon->setToolTip(tr("%n active connection(s) to Transfer network", "", count));
+    labelConnectionsIcon->setToolTip(tr("%n active connection(s) to Mojocoin network", "", count));
 }
 
 void BitcoinGUI::setNumBlocks(int count)
@@ -746,7 +746,7 @@ void BitcoinGUI::setNumBlocks(int count)
 
 void BitcoinGUI::message(const QString &title, const QString &message, bool modal, unsigned int style)
 {
-    QString strTitle = tr("Transfer") + " - ";
+    QString strTitle = tr("Mojocoin") + " - ";
     // Default to information icon
     int nMBoxIcon = QMessageBox::Information;
     int nNotifyIcon = Notificator::Information;
@@ -1050,7 +1050,7 @@ void BitcoinGUI::dropEvent(QDropEvent *event)
         if (nValidUrisFound)
             gotoSendCoinsPage();
         else
-            notificator->notify(Notificator::Warning, tr("URI handling"), tr("URI can not be parsed! This can be caused by an invalid Transfer address or malformed URI parameters."));
+            notificator->notify(Notificator::Warning, tr("URI handling"), tr("URI can not be parsed! This can be caused by an invalid Mojocoin address or malformed URI parameters."));
     }
 
     event->acceptProposedAction();
@@ -1065,7 +1065,7 @@ void BitcoinGUI::handleURI(QString strURI)
         gotoSendCoinsPage();
     }
     else
-        notificator->notify(Notificator::Warning, tr("URI handling"), tr("URI can not be parsed! This can be caused by an invalid Transfer address or malformed URI parameters."));
+        notificator->notify(Notificator::Warning, tr("URI handling"), tr("URI can not be parsed! This can be caused by an invalid Mojocoin address or malformed URI parameters."));
 }
 
 void BitcoinGUI::setEncryptionStatus(int status)
@@ -1219,11 +1219,7 @@ void BitcoinGUI::updateStakingIcon()
         uint64_t nWeight = this->nWeight;
         uint64_t nNetworkWeight = GetPoSKernelPS();
         unsigned nEstimateTime = 0;
-        if(pindexBest->nHeight <= HARD_FORK_BLOCK){
-            nEstimateTime = TARGET_SPACING_FORK * nNetworkWeight / nWeight;
-        } else {
-            nEstimateTime = TARGET_SPACING * nNetworkWeight / nWeight;
-        }
+        nEstimateTime = TARGET_SPACING * nNetworkWeight / nWeight;
 
         QString text;
         if (nEstimateTime < 60)

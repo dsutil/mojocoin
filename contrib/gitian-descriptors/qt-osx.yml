@@ -1,5 +1,5 @@
 ---
-name: "transfer-osx-qt"
+mojocoin: "mojocoin-osx-qt"
 suites:
 - "trusty"
 architectures:
@@ -22,7 +22,7 @@ reference_datetime: "2011-01-30 00:00:00"
 remotes: []
 files:
 - "qt-everywhere-opensource-src-5.5.0.tar.xz"
-- "transfer-deps-osx-gitian.zip"
+- "mojocoin-deps-osx-gitian.zip"
 - "flex-2.5.38.tar.gz"
 - "osxcross.tar.xz"
 script: |
@@ -66,9 +66,9 @@ script: |
   make install
   cd ..
   #
-  # Need mingw-compiled openssl from transfer-deps:
+  # Need mingw-compiled openssl from mojocoin-deps:
   cd $DEPSDIR
-  unzip -o $BUILDDIR/transfer-deps-osx-gitian.zip
+  unzip -o $BUILDDIR/mojocoin-deps-osx-gitian.zip
   tar xf $BUILDDIR/osxcross.tar.xz
   #
   cd $BUILDDIR
@@ -213,7 +213,7 @@ script: |
   #
   # post-process all generated libraries and plugins to be deterministic
   # extract them to a temporary directory then re-build them deterministically
-  #for LIB in $(find $INSTALLPREFIX -name *.a); do
+  #for LIB in $(find $INSTALLPREFIX -mojocoin *.a); do
   #    rm -rf $TEMPDIR && mkdir $TEMPDIR && cd $TEMPDIR
   #    $HOST-ar xv $LIB | cut -b5- > /tmp/list.txt
   #    rm $LIB

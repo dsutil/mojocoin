@@ -9,7 +9,7 @@
 #include "clientversion.h"
 
 //
-// Bootup the masternode, look for a 500 TX input and register on the network
+// Bootup the masternode, look for a 500 MOJO input and register on the network
 //
 void CActiveMasternode::ManageStatus()
 {
@@ -96,7 +96,7 @@ void CActiveMasternode::ManageStatus()
             	return;
             }
 
-            /* donations are not supported in transfer.conf */
+            /* donations are not supported in Mojocoin.conf */
             CScript donationAddress = CScript();
             int donationPercentage = 0;
 

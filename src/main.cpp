@@ -45,9 +45,9 @@ set<pair<COutPoint, unsigned int> > setStakeSeen;
 CBigNum bnProofOfStakeLimit(~uint256(0) >> 20);
 
 unsigned int nStakeMinAge = 24 * 60 * 60; // 24 hours
-unsigned int nModifierInterval = 2 * 60; // time to elapse before new modifier is computed
+unsigned int nModifierInterval = 20 * 60; // time to elapse before new modifier is computed
 
-int nCoinbaseMaturity = 80;
+int nCoinbaseMaturity = 50;
 CBlockIndex* pindexGenesisBlock = NULL;
 int nBestHeight = -1;
 
@@ -78,7 +78,7 @@ map<uint256, set<uint256> > mapOrphanTransactionsByPrev;
 // Constant stuff for coinbase transactions we create:
 CScript COINBASE_FLAGS;
 
-const string strMessageMagic = "Transfer Signed Message:\n";
+const string strMessageMagic = "Mojocoin Signed Message:\n";
 
 std::set<uint256> setValidatedTx;
 
@@ -1293,8 +1293,11 @@ static CBigNum GetProofOfStakeLimit(int nHeight)
 // miner's coin base reward
 int64_t GetProofOfWorkReward(int nHeight, int64_t nFees)
 {
-    int64_t nSubsidy = 300 * COIN;
-
+    int64_t nSubsidy = 0.00002 * COIN;
+    
+    if (nHeight == 1)
+        return 100000000 * COIN;
+    
     return nSubsidy + nFees;
 
 }
@@ -1302,21 +1305,21 @@ int64_t GetProofOfWorkReward(int nHeight, int64_t nFees)
 // miner's coin stake reward
 int64_t GetProofOfStakeReward(const CBlockIndex* pindexPrev, int64_t nCoinAge, int64_t nFees)
 {
-    int64_t nSubsidy = STATIC_POS_REWARD;
+   int64_t nRewardCoinYear = 1 * CENT;
+    
+    if (pindexPrev->nHeight < 512000)
+        nRewardCoinYear = 15 * CENT;
+    if (pindexPrev->nHeight >= 512000 && pindexPrev->nHeight < 1025000)
+        nRewardCoinYear = 10 * CENT;
+    if (pindexPrev->nHeight >= 1025000 && pindexPrev->nHeight < 1537000)
+        nRewardCoinYear = 5 * CENT;
 
-    if(pindexPrev->nHeight <= 15000)
-    {
-        nSubsidy = 300 * COIN;
-    }
-    else if(pindexPrev->nHeight < 57000)
-    {
-        nSubsidy = 15 * COIN;
-    }
+    int64_t nSubsidy = nCoinAge * nRewardCoinYear / 365 / COIN;
 
     return nSubsidy + nFees;
 }
 
-static int64_t nTargetTimespan = 10 * 60;  // 10 mins
+static const int64_t nTargetTimespan = 1 * 15 * 60;
 
 // ppcoin: find last block index up to pindex
 const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfStake)
@@ -1326,7 +1329,7 @@ const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfSta
     return pindex;
 }
 
-unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfStake)
+static unsigned int GetNextTargetRequired_(const CBlockIndex* pindexLast, bool fProofOfStake)
 {
     CBigNum bnTargetLimit = fProofOfStake ? GetProofOfStakeLimit(pindexLast->nHeight) : Params().ProofOfWorkLimit();
 
@@ -1341,33 +1344,20 @@ unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfS
         return bnTargetLimit.GetCompact(); // second block
 
     int64_t nActualSpacing = pindexPrev->GetBlockTime() - pindexPrevPrev->GetBlockTime();
-
-    if(pindexBest->nHeight >= HARD_FORK_BLOCK){
-        if (nActualSpacing < 0){
-            nActualSpacing = TARGET_SPACING_FORK;
-        }
-        if(nActualSpacing > TARGET_SPACING_FORK * 10){
-            nActualSpacing = TARGET_SPACING_FORK * 10;
-        }
-    } else if(pindexBest->nHeight < HARD_FORK_BLOCK) {
-        if (nActualSpacing < 0){
-            nActualSpacing = TARGET_SPACING;
-        }
-    }
+    
+    // Normalize atypical values
+    if (nActualSpacing < 1)
+        nActualSpacing = 1;
+    if (nActualSpacing > TARGET_SPACING * 3)
+        nActualSpacing = TARGET_SPACING * 3;
 
     // ppcoin: target change every block
     // ppcoin: retarget with exponential moving toward target spacing
     CBigNum bnNew;
     bnNew.SetCompact(pindexPrev->nBits);
-    if(pindexBest->nHeight >= HARD_FORK_BLOCK){
-        int64_t nInterval = nTargetTimespan / TARGET_SPACING_FORK;
-        bnNew *= ((nInterval - 1) * TARGET_SPACING_FORK + nActualSpacing + nActualSpacing);
-        bnNew /= ((nInterval + 1) * TARGET_SPACING_FORK);
-    } else {
-        int64_t nInterval = nTargetTimespan / TARGET_SPACING;
-        bnNew *= ((nInterval - 1) * TARGET_SPACING + nActualSpacing + nActualSpacing);
-        bnNew /= ((nInterval + 1) * TARGET_SPACING);
-    }
+    int64_t nInterval = nTargetTimespan / TARGET_SPACING;
+    bnNew *= ((nInterval - 1) * TARGET_SPACING + nActualSpacing + nActualSpacing);
+    bnNew /= ((nInterval + 1) * TARGET_SPACING);
 
     if (bnNew <= 0 || bnNew > bnTargetLimit)
         bnNew = bnTargetLimit;
@@ -1375,6 +1365,10 @@ unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfS
     return bnNew.GetCompact();
 }
 
+unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfStake)
+{
+    return GetNextTargetRequired_(pindexLast, fProofOfStake);
+}
 bool CheckProofOfWork(uint256 hash, unsigned int nBits)
 {
     CBigNum bnTarget;
@@ -1631,12 +1625,10 @@ bool CTransaction::ConnectInputs(CTxDB& txdb, MapPrevTx inputs, map<uint256, CTx
 
             // If prev is coinbase or coinstake, check that it's matured
             if (txPrev.IsCoinBase() || txPrev.IsCoinStake())
-            {
-                int nSpendDepth;
-                if (IsConfirmedInNPrevBlocks(txindex, pindexBlock, nCoinbaseMaturity, nSpendDepth)){
-                    return error("ConnectInputs() : tried to spend %s at depth %d", txPrev.IsCoinBase() ? "coinbase" : "coinstake", nSpendDepth);
-                }
-            }
+                for (const CBlockIndex* pindex = pindexBlock; pindex && pindexBlock->nHeight - pindex->nHeight < nCoinbaseMaturity; pindex = pindex->pprev)
+                    if (pindex->nBlockPos == txindex.pos.nBlockPos && pindex->nFile == txindex.pos.nFile)
+                        return error("ConnectInputs() : tried to spend %s at depth %d", txPrev.IsCoinBase() ? "coinbase" : "coinstake", pindexBlock->nHeight - pindex->nHeight);
+
             // ppcoin: check transaction timestamp
             if (txPrev.nTime > nTime)
                 return DoS(100, error("ConnectInputs() : transaction timestamp earlier than input transaction"));
@@ -1917,7 +1909,6 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
             if (tx.IsCoinStake())
                 nStakeReward = nTxValueOut - nTxValueIn;
 
-
             if (!tx.ConnectInputs(txdb, mapInputs, mapQueuedChanges, posThisTx, pindex, true, false, flags))
                 return false;
         }
@@ -1944,7 +1935,7 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
         int64_t nCalculatedStakeReward = GetProofOfStakeReward(pindex->pprev, nCoinAge, nFees);
 
         if (nStakeReward > nCalculatedStakeReward)
-            return DoS(100, error("ConnectBlock() : coinstake pays too much(actual=%d vs calculated=%d)", nStakeReward, nCalculatedStakeReward));
+            return DoS(100, error("ConnectBlock() : coinstake pays too much(actual=%d vs calculated=%d) %d", nStakeReward, nCalculatedStakeReward, pindex->pprev->nHeight));
     }
 
     // ppcoin: track money supply and mint amount info
@@ -2273,7 +2264,45 @@ bool CBlock::SetBestChain(CTxDB& txdb, CBlockIndex* pindexNew)
 
     return true;
 }
+bool CTransaction::GetCoinAge(CTxDB& txdb, const CBlockIndex* pindexPrev, uint64_t& nCoinAge) const
+{
+    CBigNum bnCentSecond = 0;  // coin age in the unit of cent-seconds
+    nCoinAge = 0;
 
+    if (IsCoinBase())
+        return true;
+
+    BOOST_FOREACH(const CTxIn& txin, vin)
+    {
+        // First try finding the previous transaction in database
+        CTransaction txPrev;
+        CTxIndex txindex;
+        if (!txPrev.ReadFromDisk(txdb, txin.prevout, txindex))
+            continue;  // previous transaction not in main chain
+        if (nTime < txPrev.nTime)
+            return false;  // Transaction timestamp violation
+
+        // Read block header
+        CBlock block;
+        if (!block.ReadFromDisk(txindex.pos.nFile, txindex.pos.nBlockPos, false))
+            return false; // unable to read block of previous transaction
+        if (block.GetBlockTime() + nStakeMinAge > nTime)
+            continue; // only count coins meeting min age requirement
+
+        int64_t nValueIn = txPrev.vout[txin.prevout.n].nValue;
+        bnCentSecond += CBigNum(nValueIn) * (nTime-txPrev.nTime) / CENT;
+
+        //if (fDebug && GetBoolArg("-printcoinage"))
+        //    printf("coin age nValueIn=%"PRId64" nTimeDiff=%d bnCentSecond=%s\n", nValueIn, nTime - txPrev.nTime, bnCentSecond.ToString().c_str());
+    }
+
+    CBigNum bnCoinDay = bnCentSecond * CENT / (24 * 60 * 60);
+    //if (fDebug && GetBoolArg("-printcoinage"))
+    //    printf("coin age bnCoinDay=%s\n", bnCoinDay.ToString().c_str());
+    nCoinAge = bnCoinDay.getuint64();
+    return true;
+}
+/*
 // ppcoin: total coin age spent in transaction, in the unit of coin-days.
 // Only those coins meeting minimum age requirement counts. As those
 // transactions not in main chain are not currently indexed so we
@@ -2281,11 +2310,11 @@ bool CBlock::SetBestChain(CTxDB& txdb, CBlockIndex* pindexNew)
 // guaranteed to be in main chain by sync-checkpoint. This rule is
 // introduced to help nodes establish a consistent view of the coin
 // age (trust score) of competing branches.
-bool CTransaction::GetCoinAge(CTxDB& txdb, const CBlockIndex* pindexPrev, uint64_t& nCoinAge) const
+bool CTransaction::GetCoinAge_(CTxDB& txdb, const CBlockIndex* pindexPrev, uint64_t& nCoinAge) const
 {
     CBigNum bnCentSecond = 0;  // coin age in the unit of cent-seconds
     nCoinAge = 0;
-    int nStakeMinConfirmations = 1440;
+    int nStakeMinConfirmations = 50;
 
     if (IsCoinBase())
         return true;
@@ -2319,7 +2348,7 @@ bool CTransaction::GetCoinAge(CTxDB& txdb, const CBlockIndex* pindexPrev, uint64
     nCoinAge = bnCoinDay.getuint64();
     return true;
 }
-
+*/
 bool CBlock::AddToBlockIndex(unsigned int nFile, unsigned int nBlockPos, const uint256& hashProof)
 {
     AssertLockHeld(cs_main);
@@ -2612,11 +2641,11 @@ bool CBlock::AcceptBlock()
     if (!Checkpoints::CheckHardened(nHeight, hash))
         return DoS(100, error("AcceptBlock() : rejected by hardened checkpoint lock-in at %d", nHeight));
 
-    uint256 hashProof;
+    uint256 hashProof = 0;
     // Verify hash target and signature of coinstake tx
     if (IsProofOfStake())
     {
-        uint256 targetProofOfStake;
+        uint256 targetProofOfStake = 0;
         if (!CheckProofOfStake(pindexPrev, vtx[1], nBits, hashProof, targetProofOfStake))
         {
             return error("AcceptBlock() : check proof-of-stake failed for block %s", hash.ToString());
@@ -3176,7 +3205,7 @@ struct CImportingNow
 
 void ThreadImport(std::vector<boost::filesystem::path> vImportFiles)
 {
-    RenameThread("transfer-loadblk");
+    RenameThread("mojocoin-loadblk");
 
     CImportingNow imp;
 

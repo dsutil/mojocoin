@@ -7,7 +7,7 @@ software written by Eric Young (eay@cryptsoft.com) and UPnP software written by
 Thomas Bernard.
 
 
-Mac OS X transferd build instructions
+Mac OS X mojocoind build instructions
 Laszlo Hanyecz <solar@heliacal.net>
 Douglas Huff <dhuff@jrbobdobbs.org>
 
@@ -27,7 +27,7 @@ but you can get the current version from http://developer.apple.com
 
 1.  Clone the github tree to get the source code:
 
-git clone http://github.com/transferdev/transfercoin transfer
+git clone http://github.com/stormbitz/mojocoin Mojocoin
 
 2.  Download and install MacPorts from http://www.macports.org/
 
@@ -41,14 +41,14 @@ sudo port install boost db48 openssl miniupnpc
 Optionally install qrencode (and set USE_QRCODE=1):
 sudo port install qrencode
 
-4.  Now you should be able to build transferd:
+4.  Now you should be able to build mojocoind:
 
-cd transfer/src
+cd Mojocoin/src
 make -f makefile.osx
 
 Run:
-  ./transferd --help  # for a list of command-line options.
+  ./mojocoind --help  # for a list of command-line options.
 Run
-  ./transferd -daemon # to start the transfer daemon.
+  ./mojocoind -daemon # to start the Mojocoin daemon.
 Run
-  ./transferd help # When the daemon is running, to get a list of RPC commands
+  ./mojocoind help # When the daemon is running, to get a list of RPC commands

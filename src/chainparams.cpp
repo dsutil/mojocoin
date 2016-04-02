@@ -57,61 +57,61 @@ public:
         // The message start string is designed to be unlikely to occur in normal data.
         // The characters are rarely used upper ASCII, not valid as UTF-8, and produce
         // a large 4-byte int at any alignment.
-        pchMessageStart[0] = 0xd1;
-        pchMessageStart[1] = 0x2e;
-        pchMessageStart[2] = 0x1e;
-        pchMessageStart[3] = 0xe6;
-        vAlertPubKey = ParseHex("04cc24ab003c828cdd9cf4db2ebbde8e1cecb3bbfa8b3127fcb9dd9b84d44112080827ed7c49a648af9fe788ff42e316aee665879c553f099e55299d6b54edd7e0");
-        nDefaultPort = 17170;
+        pchMessageStart[0] = 0xe1;
+        pchMessageStart[1] = 0xee;
+        pchMessageStart[2] = 0xb2;
+        pchMessageStart[3] = 0xd4;
+        vAlertPubKey = ParseHex("049fcfa264333bd32dde1d8cb6d964fa50fd807912011a2b0b4769aa7f12a8d795fa05e01722433d8215309f51df3bbdbd8b18564a847e5e54b034c8bf39a11ca2");
+        nDefaultPort = 22256;
         nRPCPort = 17171;
-        bnProofOfWorkLimit = CBigNum(~uint256(0) >> 16);
+        bnProofOfWorkLimit = CBigNum(~uint256(0) >> 20);
 
         // Build the genesis block. Note that the output of the genesis coinbase cannot
         // be spent as it did not originally exist in the database.
         //
-        //CBlock(hash=000001faef25dec4fbcf906e6242621df2c183bf232f263d0ba5b101911e4563, ver=1, hashPrevBlock=0000000000000000000000000000000000000000000000000000000000000000, hashMerkleRoot=12630d16a97f24b287c8c2594dda5fb98c9e6c70fc61d44191931ea2aa08dc90, nTime=1393221600, nBits=1e0fffff, nNonce=164482, vtx=1, vchBlockSig=)
-        //  Coinbase(hash=12630d16a9, nTime=1393221600, ver=1, vin.size=1, vout.size=1, nLockTime=0)
-        //    CTxIn(COutPoint(0000000000, 4294967295), coinbase 00012a24323020466562203230313420426974636f696e2041544d7320636f6d6520746f20555341)
-        //    CTxOut(empty)
-        //  vMerkleTree: 12630d16a9
-        const char* pszTimestamp = "August 9, 2015: Bitcoin Exchanges Kraken and Bitfinex Cut Services in New York";
+        const char* pszTimestamp = "Mojocoin Genesis Block";
         std::vector<CTxIn> vin;
         vin.resize(1);
         vin[0].scriptSig = CScript() << 0 << CBigNum(42) << vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
         std::vector<CTxOut> vout;
         vout.resize(1);
         vout[0].SetEmpty();
-        CTransaction txNew(1, 1439187265, vin, vout, 0);
+        CTransaction txNew(1, 1455033871, vin, vout, 0);
         genesis.vtx.push_back(txNew);
         genesis.hashPrevBlock = 0;
         genesis.hashMerkleRoot = genesis.BuildMerkleTree();
         genesis.nVersion = 1;
-        genesis.nTime    = 1439187265;
+        genesis.nTime    = 1455033877;
         genesis.nBits    = bnProofOfWorkLimit.GetCompact(); 
-        genesis.nNonce   = 35117;
+        genesis.nNonce   = 1004377;
 
         hashGenesisBlock = genesis.GetHash();
 
-        assert(hashGenesisBlock == uint256("0x9672529bc958a440a8acd061d914120d44c914a06454b82d3e1cd68fe4f1f916"));
-        assert(genesis.hashMerkleRoot == uint256("0x8e6f40b9daab81088051275173dbca8fc86c9e15abe57d0ef9aed3f668638dc2"));
+        assert(hashGenesisBlock == uint256("0x00000dc630af1f2ef0d5b85bd2c95e6897fd8dc36f38ce24c5400a23043fe9a0"));
+        assert(genesis.hashMerkleRoot == uint256("0xde5b0282c1c5af1cfd8f3158b6c436f004e582a24bb2fa0e40b14186208eddc3"));
 
         
-        base58Prefixes[PUBKEY_ADDRESS] = list_of(66);
-        base58Prefixes[SCRIPT_ADDRESS] = list_of(85);
+        base58Prefixes[PUBKEY_ADDRESS] = list_of(50);
+        base58Prefixes[SCRIPT_ADDRESS] = list_of(28);
         base58Prefixes[SECRET_KEY] =     list_of(153);
         base58Prefixes[STEALTH_ADDRESS] = list_of(40);
         base58Prefixes[EXT_PUBLIC_KEY] = list_of(0x04)(0x88)(0xB2)(0x1E);
         base58Prefixes[EXT_SECRET_KEY] = list_of(0x04)(0x88)(0xAD)(0xE4);
 
-        vSeeds.push_back(CDNSSeedData("First",  "txdns.infernopool.com"));
+        vSeeds.push_back(CDNSSeedData("First",  "94.181.46.68"));
+        vSeeds.push_back(CDNSSeedData("Second",  "78.63.207.76"));
+        vSeeds.push_back(CDNSSeedData("Third",  "46.236.161.66"));
+        vSeeds.push_back(CDNSSeedData("Fourth",  "188.165.42.51"));
+        vSeeds.push_back(CDNSSeedData("Fifth",  "193.192.37.135"));
+        vSeeds.push_back(CDNSSeedData("Sixth",  "77.106.70.104"));
         convertSeeds(vFixedSeeds, pnSeed, ARRAYLEN(pnSeed), nDefaultPort);
 
         nPoolMaxTransactions = 3;
         //strSporkKey = "046f78dcf911fbd61910136f7f0f8d90578f68d0b3ac973b5040fb7afb501b5939f39b108b0569dca71488f5bbf498d92e4d1194f6f941307ffd95f75e76869f0e";
         //strMasternodePaymentsPubKey = "046f78dcf911fbd61910136f7f0f8d90578f68d0b3ac973b5040fb7afb501b5939f39b108b0569dca71488f5bbf498d92e4d1194f6f941307ffd95f75e76869f0e";
         strDarksendPoolDummyAddress = "TcYM6qFTC9i1CHb4GoHTQchF7Z2Qru73gv";
-        nLastPOWBlock = 15000;
-        nPOSStartBlock = 1000;
+        nLastPOWBlock = 1440 * 20;
+        nPOSStartBlock = 0;
     }
 
     virtual const CBlock& GenesisBlock() const { return genesis; }
@@ -148,10 +148,10 @@ public:
         strDataDir = "testnet";
 
         // Modify the testnet genesis block so the timestamp is valid for a later start.
-        genesis.nBits  = 520159231; 
-        genesis.nNonce = 35117;
+        genesis.nBits  = 1455033877; 
+        genesis.nNonce = 1004377;
 
-        assert(hashGenesisBlock == uint256("0x9672529bc958a440a8acd061d914120d44c914a06454b82d3e1cd68fe4f1f916"));
+        //assert(hashGenesisBlock == uint256("0x00000d4d0549912423730a89e05b8f096591d32795b1612a0abd5c3541904ddf"));
 
         vFixedSeeds.clear();
         vSeeds.clear();
