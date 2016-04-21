@@ -150,9 +150,9 @@ OverviewPage::OverviewPage(QWidget *parent) :
             ui->frameDarksend->setEnabled(false);
         } else {
             if(!fEnableDarksend){
-                ui->toggleDarksend->setText(tr("Start Darksend Mixing"));
+                ui->toggleDarksend->setText(tr("Start Mojomix"));
             } else {
-                ui->toggleDarksend->setText(tr("Stop Darksend Mixing"));
+                ui->toggleDarksend->setText(tr("Stop Mojomix"));
             }
             timer = new QTimer(this);
             connect(timer, SIGNAL(timeout()), this, SLOT(darkSendStatus()));
