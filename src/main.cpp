@@ -1305,17 +1305,28 @@ int64_t GetProofOfWorkReward(int nHeight, int64_t nFees)
 // miner's coin stake reward
 int64_t GetProofOfStakeReward(const CBlockIndex* pindexPrev, int64_t nCoinAge, int64_t nFees)
 {
-   int64_t nRewardCoinYear = 1 * CENT;
+
+    int64_t nRewardCoinYear = 1 * CENT;
     
-    if (pindexPrev->nHeight < 512000)
-        nRewardCoinYear = 15 * CENT;
-    if (pindexPrev->nHeight >= 512000 && pindexPrev->nHeight < 1025000)
-        nRewardCoinYear = 10 * CENT;
-    if (pindexPrev->nHeight >= 1025000 && pindexPrev->nHeight < 1537000)
-        nRewardCoinYear = 5 * CENT;
+    if (pindexPrev->nHeight <= HARD_FORK_BLOCK)
+    {
+        if (pindexPrev->nHeight < 512000)
+            nRewardCoinYear = 15 * CENT;
+        if (pindexPrev->nHeight >= 512000 && pindexPrev->nHeight < 1025000)
+            nRewardCoinYear = 10 * CENT;
+        if (pindexPrev->nHeight >= 1025000 && pindexPrev->nHeight < 1537000)
+            nRewardCoinYear = 5 * CENT;
+    } else {
+        int64_t nReductions = floor(pindexPrev->nHeight % 250000);
+        int64_t nProposedRewardCoinYear = (15 - nReductions) * CENT;        
+        
+        if (nProposedRewardCoinYear < nRewardCoinYear)
+        {
+            nRewardCoinYear = nProposedRewardCoinYear;
+        }
+    }
 
     int64_t nSubsidy = nCoinAge * nRewardCoinYear / 365 / COIN;
-
     return nSubsidy + nFees;
 }
 
@@ -2292,14 +2303,20 @@ bool CTransaction::GetCoinAge(CTxDB& txdb, const CBlockIndex* pindexPrev, uint64
         int64_t nValueIn = txPrev.vout[txin.prevout.n].nValue;
         bnCentSecond += CBigNum(nValueIn) * (nTime-txPrev.nTime) / CENT;
 
-        //if (fDebug && GetBoolArg("-printcoinage"))
-        //    printf("coin age nValueIn=%"PRId64" nTimeDiff=%d bnCentSecond=%s\n", nValueIn, nTime - txPrev.nTime, bnCentSecond.ToString().c_str());
     }
 
-    CBigNum bnCoinDay = bnCentSecond * CENT / (24 * 60 * 60);
-    //if (fDebug && GetBoolArg("-printcoinage"))
-    //    printf("coin age bnCoinDay=%s\n", bnCoinDay.ToString().c_str());
-    nCoinAge = bnCoinDay.getuint64();
+    // Int64 overflow workaround.
+    if (pindexPrev->nHeight > HARD_FORK_BLOCK)
+    {
+        CBigNum bnCoinDay = bnCentSecond * CENT / COIN / (24 * 60 * 60);
+        nCoinAge = bnCoinDay.getuint64() * COIN;
+    }
+    else
+    {
+        CBigNum bnCoinDay = bnCentSecond * CENT / (24 * 60 * 60);
+        nCoinAge = bnCoinDay.getuint64();
+    }
+
     return true;
 }
 /*

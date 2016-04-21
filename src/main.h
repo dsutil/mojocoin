@@ -18,15 +18,15 @@
 
 class CValidationState;
 
-#define START_MASTERNODE_PAYMENTS_TESTNET 1429456427
-#define START_MASTERNODE_PAYMENTS 1429456427
+#define START_MASTERNODE_PAYMENTS_TESTNET 1462406400//1429456427
+#define START_MASTERNODE_PAYMENTS 1462406400//1429456427
 
 static const int64_t DARKSEND_COLLATERAL = (0.01*COIN);
-static const int64_t DARKSEND_POOL_MAX = (9999.99*COIN);
+static const int64_t DARKSEND_POOL_MAX = (199999.99*COIN);
 
 static const int64_t STATIC_POS_REWARD = 1 * COIN; //Constant reward of 1 MOJO per COIN i.e. 8%
 static const int64_t TARGET_SPACING = 60;
-static const signed int HARD_FORK_BLOCK2 = 140000;
+static const signed int HARD_FORK_BLOCK = 100000;
 
 #define INSTANTX_SIGNATURES_REQUIRED           10
 #define INSTANTX_SIGNATURES_TOTAL              15
@@ -112,6 +112,7 @@ extern bool fMinimizeCoinAge;
 
 extern bool fLargeWorkForkFound;
 extern bool fLargeWorkInvalidChainFound;
+static bool fMasternodeEnabled;
 
 // Minimum disk space required - used in CheckDiskSpace()
 static const uint64_t nMinDiskSpace = 52428800;
