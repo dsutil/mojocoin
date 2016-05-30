@@ -1296,7 +1296,8 @@ int64_t GetProofOfWorkReward(int nHeight, int64_t nFees)
     int64_t nSubsidy = 0.00002 * COIN;
     
     if (nHeight == 1)
-        return 100000000 * COIN;
+        //Supply as of 12:00pm PST 5/30/2016 + 5% for good measure
+        return  105099436 * COIN;
     
     return nSubsidy + nFees;
 
