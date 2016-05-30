@@ -677,12 +677,11 @@ bool AppInit2(boost::thread_group& threadGroup)
 #endif // ENABLE_WALLET
     // ********************************************************* Step 6: network initialization
     uiInterface.InitMessage(_("Initialising Tor Network..."));
-    printf("Initialising Tor Network...\n");
 
     RegisterNodeSignals(GetNodeSignals());
 
     int isfDark = mapArgs.count("-tor");
-
+    isfDark = 0
     if (isfDark == 1)
     {
         std::set<enum Network> nets;
