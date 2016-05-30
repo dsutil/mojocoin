@@ -62,33 +62,46 @@ public:
         pchMessageStart[2] = 0xb2;
         pchMessageStart[3] = 0xd4;
         vAlertPubKey = ParseHex("049fcfa264333bd32dde1d8cb6d964fa50fd807912011a2b0b4769aa7f12a8d795fa05e01722433d8215309f51df3bbdbd8b18564a847e5e54b034c8bf39a11ca2");
-        nDefaultPort = 22256;
-        nRPCPort = 22257;
+        nDefaultPort = 22255;
+        nRPCPort = 22254;
         bnProofOfWorkLimit = CBigNum(~uint256(0) >> 20);
 
         // Build the genesis block. Note that the output of the genesis coinbase cannot
         // be spent as it did not originally exist in the database.
         //
-        const char* pszTimestamp = "Mojocoin Genesis Block";
+        const char* pszTimestamp = "Why ABN Amro Wants to Separate Bitcoin from the Blockchain May 29, 2016";
         std::vector<CTxIn> vin;
         vin.resize(1);
         vin[0].scriptSig = CScript() << 0 << CBigNum(42) << vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
         std::vector<CTxOut> vout;
         vout.resize(1);
         vout[0].SetEmpty();
-        CTransaction txNew(1, 1455033871, vin, vout, 0);
+        CTransaction txNew(1, 1464570719, vin, vout, 0);
         genesis.vtx.push_back(txNew);
         genesis.hashPrevBlock = 0;
         genesis.hashMerkleRoot = genesis.BuildMerkleTree();
         genesis.nVersion = 1;
-        genesis.nTime    = 1455033877;
-        genesis.nBits    = bnProofOfWorkLimit.GetCompact(); 
-        genesis.nNonce   = 1004377;
+        genesis.nTime    = 1464570719;
+        genesis.nBits    = 0x1e0ffff0; 
+        genesis.nNonce   = 57642;
 
         hashGenesisBlock = genesis.GetHash();
+        if (false ) {
+            uint256 hashTarget = CBigNum().SetCompact(genesis.nBits).getuint256();
+            while (genesis.GetHash() > hashTarget)
+               {
+                   ++genesis.nNonce;
+                   if (genesis.nNonce == 0)
+                   {
+                       printf("NONCE WRAPPED, incrementing time");
+                       ++genesis.nTime;
+                   }
+               }
+            printf("%s",genesis.ToString().c_str());
+        }
 
-        assert(hashGenesisBlock == uint256("0x00000dc630af1f2ef0d5b85bd2c95e6897fd8dc36f38ce24c5400a23043fe9a0"));
-        assert(genesis.hashMerkleRoot == uint256("0xde5b0282c1c5af1cfd8f3158b6c436f004e582a24bb2fa0e40b14186208eddc3"));
+        assert(hashGenesisBlock == uint256("0x0000049614bde7fe3aceee80906a42b42df10ff4cf7a8132ac513530dacf73ec"));
+        assert(genesis.hashMerkleRoot == uint256("0xc4139e576bf71c0485d5876f76ab2ec15807b89f4095fbfe380007afe18a7921"));
 
         
         base58Prefixes[PUBKEY_ADDRESS] = list_of(50);
