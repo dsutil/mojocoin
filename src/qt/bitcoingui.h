@@ -113,7 +113,7 @@ private:
     QAction *masternodeManagerAction;
     QAction *messageAction;
     QAction *blockAction;
-    QAction *TradingAction;
+//    QAction *TradingAction;
     QAction *showBackupsAction;
 
     QSystemTrayIcon *trayIcon;
