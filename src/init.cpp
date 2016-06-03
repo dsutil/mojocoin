@@ -52,14 +52,17 @@ int nWalletBackups = 10;
 #endif
 CClientUIInterface uiInterface;
 bool fConfChange;
+bool fOnlyTor = false;
+
 bool fMinimizeCoinAge;
 unsigned int nNodeLifespan;
 unsigned int nDerivationMethodIndex;
 unsigned int nMinerSleep;
 bool fUseFastIndex;
+
 bool fDarkEnabled = false;
 CService addrOnion;
-unsigned short const onion_port = 9060;
+unsigned short const onion_port = 9050;
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -123,6 +126,7 @@ void Shutdown()
         bitdb.Flush(false);
 #endif
     StopNode();
+    UnregisterNodeSignals(GetNodeSignals());
     DumpMasternodes();
     {
         LOCK(cs_main);
@@ -414,6 +418,10 @@ bool AppInit2(boost::thread_group& threadGroup)
         // to protect privacy, do not discover addresses by default
         if (SoftSetBoolArg("-discover", false))
             LogPrintf("AppInit2 : parameter interaction: -proxy set -> setting -discover=0\n");
+        // to protect privacy, do not use UPNP when a proxy is set. The user may still specify -listen=1
+        // to listen locally, so don't rely on this happening through -listen below.
+        if (SoftSetBoolArg("-upnp", false))
+            LogPrintf("AppInit2 : parameter interaction: -proxy set -> setting -upnp=0\n");
     }
 
     if (!GetBoolArg("-listen", true)) {
@@ -679,9 +687,9 @@ bool AppInit2(boost::thread_group& threadGroup)
     uiInterface.InitMessage(_("Initialising Tor Network..."));
 
     RegisterNodeSignals(GetNodeSignals());
-
+/*
     int isfDark = mapArgs.count("-tor");
-    isfDark = 0
+    isfDark = 0;
     if (isfDark == 1)
     {
         std::set<enum Network> nets;
@@ -693,7 +701,7 @@ bool AppInit2(boost::thread_group& threadGroup)
                 SetLimited(net);
         }
     }
-
+*/
   
     if (mapArgs.count("-onlynet")) {
         std::set<enum Network> nets;
@@ -702,7 +710,7 @@ bool AppInit2(boost::thread_group& threadGroup)
 
     	    if(net == NET_TOR)
     		  fDarkEnabled = true;
-
+                fOnlyTor = true;
             if (net == NET_UNROUTABLE)
                 return InitError(strprintf(_("Unknown network specified in -onlynet: '%s'"), snet));
             nets.insert(net);
@@ -712,8 +720,8 @@ bool AppInit2(boost::thread_group& threadGroup)
             if (!nets.count(net))
                 SetLimited(net);
         }
-    } else {
-        addrOnion = CService("127.0.0.1", onion_port);
+    //} else {
+    //    addrOnion = CService("127.0.0.1", onion_port);
     }
 
 
@@ -769,7 +777,7 @@ bool AppInit2(boost::thread_group& threadGroup)
             if (!IsLimited(NET_IPV4))
                 fBound |= Bind(CService(inaddr_any, GetListenPort()), !fBound);
         }
-
+/*
         if (isfDark == 1)
         {
                 CService addrBind;
@@ -779,6 +787,7 @@ bool AppInit2(boost::thread_group& threadGroup)
 
                 fBound |= Bind(addrBind);
         }
+*/
         if (!fBound)
             return InitError(_("Failed to listen on any port. Use -listen=0 if you want this."));
     }
@@ -792,6 +801,7 @@ bool AppInit2(boost::thread_group& threadGroup)
             AddLocal(CService(strAddr, GetListenPort(), fNameLookup), LOCAL_MANUAL);
         }
     }
+/*    
     if (isfDark == 1)
     {
         string automatic_onion;
@@ -805,7 +815,7 @@ bool AppInit2(boost::thread_group& threadGroup)
         file >> automatic_onion;
         AddLocal(CService(automatic_onion, GetListenPort(), fNameLookup), LOCAL_MANUAL);
     }
-
+*/
 #ifdef ENABLE_WALLET
     if (mapArgs.count("-reservebalance")) // ppcoin: reserve balance amount
     {
@@ -819,14 +829,14 @@ bool AppInit2(boost::thread_group& threadGroup)
 
     BOOST_FOREACH(string strDest, mapMultiArgs["-seednode"])
         AddOneShot(strDest);
-
+/*
     if (!(mapArgs.count("-tor") && mapArgs["-tor"] != "0")) {
         StartTor(threadGroup);
         wait_initialized();
         uiInterface.InitMessage(_("Initialising Tor Network..."));
         printf("Initialising Tor Network...\n");
     }
-
+*/
     // ********************************************************* Step 7: load blockchain
 
     if (GetBoolArg("-loadblockindextest", false))
