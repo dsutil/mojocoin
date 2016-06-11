@@ -65,7 +65,14 @@ public:
         nDefaultPort = 22255;
         nRPCPort = 22254;
         bnProofOfWorkLimit = CBigNum(~uint256(0) >> 20);
+/*
+CBlock(hash=00000d7dc8114fd09d52e3f5731f865431ae31fb699c668cc1af9f060cdcf4e3, ver=1, hashPrevBlock=0000000000000000000000000000000000000000000000000000000000000000, hashMerkleRoot=b440d96a709a76fb8920a0d29b71546e6007f2c92f1636dbccd5afce24046941, nTime=1464570719, nBits=1e0ffff0, nNonce=805399, vtx=1, vchBlockSig=)
+  Coinbase(hash=b440d96a709a76fb8920a0d29b71546e6007f2c92f1636dbccd5afce24046941, nTime=1464570719, ver=1, vin.size=1, vout.size=1, nLockTime=0)
+    CTxIn(COutPoint(0000000000, 4294967295), coinbase 00012a475768792041424e20416d726f2057616e747320746f20536570617261746520426974636f696e2066726f6d2074686520426c6f636b636861696e204d61792032392c2032303136)
+    CTxOut(nValue=105099436.00, scriptPubKey=OP_DUP OP_HASH160 b472a266d0bd89c13706a4132ccfb16f7c3b9fcb OP_EQUALVERIFY OP_CHECKSIG)
 
+  vMerkleTree:  b440d96a709a76fb8920a0d29b71546e6007f2c92f1636dbccd5afce24046941
+*/
         // Build the genesis block. Note that the output of the genesis coinbase cannot
         // be spent as it did not originally exist in the database.
         //
@@ -75,7 +82,9 @@ public:
         vin[0].scriptSig = CScript() << 0 << CBigNum(42) << vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
         std::vector<CTxOut> vout;
         vout.resize(1);
-        vout[0].SetEmpty();
+        vout[0].nValue = 10509943600000000;
+        CPubKey pubkey(ParseHex("0x04375a4e51953036ae0d91b212fb1e19c8f31cb4ba8ab24f3cfa4580ea37b7e488ad5fd0991b70fa6e7ed41f366616d4452eba1342633d610bc679fcd9493d68c1"));
+        vout[0].scriptPubKey.SetDestination(pubkey.GetID());
         CTransaction txNew(1, 1464570719, vin, vout, 0);
         genesis.vtx.push_back(txNew);
         genesis.hashPrevBlock = 0;
@@ -83,7 +92,7 @@ public:
         genesis.nVersion = 1;
         genesis.nTime    = 1464570719;
         genesis.nBits    = 0x1e0ffff0; 
-        genesis.nNonce   = 57642;
+        genesis.nNonce   = 805399;
 
         hashGenesisBlock = genesis.GetHash();
         if (false ) {
@@ -100,8 +109,8 @@ public:
             printf("%s",genesis.ToString().c_str());
         }
 
-        assert(hashGenesisBlock == uint256("0x0000049614bde7fe3aceee80906a42b42df10ff4cf7a8132ac513530dacf73ec"));
-        assert(genesis.hashMerkleRoot == uint256("0xc4139e576bf71c0485d5876f76ab2ec15807b89f4095fbfe380007afe18a7921"));
+        assert(hashGenesisBlock == uint256("0x00000d7dc8114fd09d52e3f5731f865431ae31fb699c668cc1af9f060cdcf4e3"));
+        assert(genesis.hashMerkleRoot == uint256("0xb440d96a709a76fb8920a0d29b71546e6007f2c92f1636dbccd5afce24046941"));
 
         
         base58Prefixes[PUBKEY_ADDRESS] = list_of(50);

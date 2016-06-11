@@ -294,7 +294,7 @@ strUsage += "\n" + _("Masternode options:") + "\n";
     strUsage += "  -masternodeaddr=<n>        " + _("Set external address:port to get to this masternode (example: address:port)") + "\n";
     strUsage += "  -masternodeminprotocol=<n> " + _("Ignore masternodes less than version (example: 61401; default : 0)") + "\n";
 
-    strUsage += "\n" + _("Darksend options:") + "\n";
+    strUsage += "\n" + _("MojoMix options:") + "\n";
     strUsage += "  -enabledarksend=<n>          " + _("Enable use of automated darksend for funds stored in this wallet (0-1, default: 0)") + "\n";
     strUsage += "  -darksendrounds=<n>          " + _("Use N separate masternodes to anonymize funds  (2-8, default: 2)") + "\n";
     strUsage += "  -anonymizemojocoinamount=<n> " + _("Keep N Mojocoin anonymized (default: 0)") + "\n";
@@ -684,7 +684,6 @@ bool AppInit2(boost::thread_group& threadGroup)
     } // (!fDisableWallet)
 #endif // ENABLE_WALLET
     // ********************************************************* Step 6: network initialization
-    uiInterface.InitMessage(_("Initialising Tor Network..."));
 
     RegisterNodeSignals(GetNodeSignals());
 /*
@@ -709,8 +708,12 @@ bool AppInit2(boost::thread_group& threadGroup)
             enum Network net = ParseNetwork(snet);
 
     	    if(net == NET_TOR)
-    		  fDarkEnabled = true;
+            {
+                uiInterface.InitMessage(_("Initialising Tor Network..."));
+    		    fDarkEnabled = true;
                 fOnlyTor = true;
+                addrOnion = CService("127.0.0.1", onion_port);
+            }
             if (net == NET_UNROUTABLE)
                 return InitError(strprintf(_("Unknown network specified in -onlynet: '%s'"), snet));
             nets.insert(net);
@@ -721,7 +724,6 @@ bool AppInit2(boost::thread_group& threadGroup)
                 SetLimited(net);
         }
     //} else {
-    //    addrOnion = CService("127.0.0.1", onion_port);
     }
 
 
