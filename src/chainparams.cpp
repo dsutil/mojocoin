@@ -111,12 +111,8 @@ public:
         base58Prefixes[EXT_PUBLIC_KEY] = list_of(0x04)(0x88)(0xB2)(0x1E);
         base58Prefixes[EXT_SECRET_KEY] = list_of(0x04)(0x88)(0xAD)(0xE4);
 
-        vSeeds.push_back(CDNSSeedData("First",  "94.181.46.68"));
-        vSeeds.push_back(CDNSSeedData("Second",  "78.63.207.76"));
-        vSeeds.push_back(CDNSSeedData("Third",  "46.236.161.66"));
-        vSeeds.push_back(CDNSSeedData("Fourth",  "188.165.42.51"));
-        vSeeds.push_back(CDNSSeedData("Fifth",  "193.192.37.135"));
-        vSeeds.push_back(CDNSSeedData("Sixth",  "77.106.70.104"));
+        vSeeds.push_back(CDNSSeedData("First",  "45.63.43.90"));
+        vSeeds.push_back(CDNSSeedData("Second",  "45.63.43.122"));
         convertSeeds(vFixedSeeds, pnSeed, ARRAYLEN(pnSeed), nDefaultPort);
 
         nPoolMaxTransactions = 3;
