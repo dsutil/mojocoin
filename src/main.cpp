@@ -1304,16 +1304,20 @@ int64_t GetProofOfWorkReward(int nHeight, int64_t nFees)
 }
 
 // miner's coin stake reward
-int64_t GetProofOfStakeReward(const CBlockIndex* pindexPrev, int64_t nCoinAge, int64_t nFees)
+int64_t GetProofOfStakeReward(const CBlockIndex* pindexPrev, int64_t nCoinAge, int64_t nFees, int64_t nValueOut = 0)
 {
    int64_t nRewardCoinYear = 1 * CENT;
-    
-    if (pindexPrev->nHeight < 512000)
-        nRewardCoinYear = 15 * CENT;
-    if (pindexPrev->nHeight >= 512000 && pindexPrev->nHeight < 1025000)
-        nRewardCoinYear = 10 * CENT;
-    if (pindexPrev->nHeight >= 1025000 && pindexPrev->nHeight < 1537000)
-        nRewardCoinYear = 5 * CENT;
+   if (nValueOut > DARKSEND_POOL_MAX)
+   {
+        nRewardCoinYear = 15 * CENT;    
+   } else {
+        if (pindexPrev->nHeight < 512000)
+            nRewardCoinYear = 15 * CENT;
+        if (pindexPrev->nHeight >= 512000 && pindexPrev->nHeight < 1025000)
+            nRewardCoinYear = 10 * CENT;
+        if (pindexPrev->nHeight >= 1025000 && pindexPrev->nHeight < 1537000)
+            nRewardCoinYear = 5 * CENT;
+   }
 
     int64_t nSubsidy = nCoinAge * nRewardCoinYear / 365 / COIN;
 
@@ -1933,7 +1937,7 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
         if (!vtx[1].GetCoinAge(txdb, pindex->pprev, nCoinAge))
             return error("ConnectBlock() : %s unable to get coin age for coinstake", vtx[1].GetHash().ToString());
 
-        int64_t nCalculatedStakeReward = GetProofOfStakeReward(pindex->pprev, nCoinAge, nFees);
+        int64_t nCalculatedStakeReward = GetProofOfStakeReward(pindex->pprev, nCoinAge, nFees, vtx[1].GetValueOut());
 
         if (nStakeReward > nCalculatedStakeReward)
             return DoS(100, error("ConnectBlock() : coinstake pays too much(actual=%d vs calculated=%d) %d", nStakeReward, nCalculatedStakeReward, pindex->pprev->nHeight));
@@ -2452,6 +2456,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
         // Second transaction must be coinstake, the rest must not be
         if (vtx.empty() || !vtx[1].IsCoinStake())
             return DoS(100, error("CheckBlock() : second tx is not coinstake"));
+        
         for (unsigned int i = 2; i < vtx.size(); i++)
             if (vtx[i].IsCoinStake())
                 return DoS(100, error("CheckBlock() : more than one coinstake"));
