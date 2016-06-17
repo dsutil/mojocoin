@@ -66,33 +66,33 @@ public:
         nRPCPort = 22254;
         bnProofOfWorkLimit = CBigNum(~uint256(0) >> 20);
 /*
-CBlock(hash=00000d7dc8114fd09d52e3f5731f865431ae31fb699c668cc1af9f060cdcf4e3, ver=1, hashPrevBlock=0000000000000000000000000000000000000000000000000000000000000000, hashMerkleRoot=b440d96a709a76fb8920a0d29b71546e6007f2c92f1636dbccd5afce24046941, nTime=1464570719, nBits=1e0ffff0, nNonce=805399, vtx=1, vchBlockSig=)
-  Coinbase(hash=b440d96a709a76fb8920a0d29b71546e6007f2c92f1636dbccd5afce24046941, nTime=1464570719, ver=1, vin.size=1, vout.size=1, nLockTime=0)
+CBlock(hash=00000e2a6ca677f8c25d4905494710eeace49efb85d0fbf45c4233c5116a13cb, ver=1, hashPrevBlock=0000000000000000000000000000000000000000000000000000000000000000, hashMerkleRoot=3a68a5f01ef81a8af3008ebedac871a38dbb5ab164f7e17f85e750d2ec192343, nTime=1466189867, nBits=1e0ffff0, nNonce=2537374, vtx=1, vchBlockSig=)
+  Coinbase(hash=3a68a5f01ef81a8af3008ebedac871a38dbb5ab164f7e17f85e750d2ec192343, nTime=1466189867, ver=1, vin.size=1, vout.size=1, nLockTime=0)
     CTxIn(COutPoint(0000000000, 4294967295), coinbase 00012a475768792041424e20416d726f2057616e747320746f20536570617261746520426974636f696e2066726f6d2074686520426c6f636b636861696e204d61792032392c2032303136)
-    CTxOut(nValue=105099436.00, scriptPubKey=OP_DUP OP_HASH160 b472a266d0bd89c13706a4132ccfb16f7c3b9fcb OP_EQUALVERIFY OP_CHECKSIG)
+    CTxOut(nValue=-0.00000001, scriptPubKey=OP_DUP OP_HASH160 b472a266d0bd89c13706a4132ccfb16f7c3b9fcb OP_EQUALVERIFY OP_CHECKSIG)
 
-  vMerkleTree:  b440d96a709a76fb8920a0d29b71546e6007f2c92f1636dbccd5afce24046941
+  vMerkleTree:  3a68a5f01ef81a8af3008ebedac871a38dbb5ab164f7e17f85e750d2ec192343
 */
         // Build the genesis block. Note that the output of the genesis coinbase cannot
         // be spent as it did not originally exist in the database.
         //
+        int64_t nTime = 1466189867;
         const char* pszTimestamp = "Why ABN Amro Wants to Separate Bitcoin from the Blockchain May 29, 2016";
         std::vector<CTxIn> vin;
         vin.resize(1);
         vin[0].scriptSig = CScript() << 0 << CBigNum(42) << vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
         std::vector<CTxOut> vout;
         vout.resize(1);
-        vout[0].nValue = 10509943600000000;
         CPubKey pubkey(ParseHex("0x04375a4e51953036ae0d91b212fb1e19c8f31cb4ba8ab24f3cfa4580ea37b7e488ad5fd0991b70fa6e7ed41f366616d4452eba1342633d610bc679fcd9493d68c1"));
         vout[0].scriptPubKey.SetDestination(pubkey.GetID());
-        CTransaction txNew(1, 1464570719, vin, vout, 0);
+        CTransaction txNew(1, nTime, vin, vout, 0);
         genesis.vtx.push_back(txNew);
         genesis.hashPrevBlock = 0;
         genesis.hashMerkleRoot = genesis.BuildMerkleTree();
         genesis.nVersion = 1;
-        genesis.nTime    = 1464570719;
+        genesis.nTime    = nTime;
         genesis.nBits    = 0x1e0ffff0; 
-        genesis.nNonce   = 805399;
+        genesis.nNonce   = 2537374;
 
         hashGenesisBlock = genesis.GetHash();
         if (false ) {
@@ -109,8 +109,8 @@ CBlock(hash=00000d7dc8114fd09d52e3f5731f865431ae31fb699c668cc1af9f060cdcf4e3, ve
             printf("%s",genesis.ToString().c_str());
         }
 
-        assert(hashGenesisBlock == uint256("0x00000d7dc8114fd09d52e3f5731f865431ae31fb699c668cc1af9f060cdcf4e3"));
-        assert(genesis.hashMerkleRoot == uint256("0xb440d96a709a76fb8920a0d29b71546e6007f2c92f1636dbccd5afce24046941"));
+        assert(hashGenesisBlock == uint256("0x00000e2a6ca677f8c25d4905494710eeace49efb85d0fbf45c4233c5116a13cb"));
+        assert(genesis.hashMerkleRoot == uint256("0x3a68a5f01ef81a8af3008ebedac871a38dbb5ab164f7e17f85e750d2ec192343"));
 
         
         base58Prefixes[PUBKEY_ADDRESS] = list_of(50);
@@ -129,7 +129,7 @@ CBlock(hash=00000d7dc8114fd09d52e3f5731f865431ae31fb699c668cc1af9f060cdcf4e3, ve
         //strMasternodePaymentsPubKey = "046f78dcf911fbd61910136f7f0f8d90578f68d0b3ac973b5040fb7afb501b5939f39b108b0569dca71488f5bbf498d92e4d1194f6f941307ffd95f75e76869f0e";
         strDarksendPoolDummyAddress = "M8rBDGDe2PEhw8FCMsFAkbiUKFGDKgkELt";
         nLastPOWBlock = 1440 * 20;
-        nPOSStartBlock = 1;
+        nPOSStartBlock = 0;
     }
 
     virtual const CBlock& GenesisBlock() const { return genesis; }
