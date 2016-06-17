@@ -166,7 +166,7 @@ Value checkkernel(const Array& params, bool fHelp)
     if (vNodes.empty())
         throw JSONRPCError(-9, "Mojocoin is not connected!");
 
-    if (IsInitialBlockDownload() && pindexBest->nHeight > 100)
+    if (IsInitialBlockDownload())
         throw JSONRPCError(-10, "Mojocoin is downloading blocks...");
 
     COutPoint kernel;
@@ -247,7 +247,7 @@ Value getworkex(const Array& params, bool fHelp)
     if (vNodes.empty())
         throw JSONRPCError(-9, "Mojocoin is not connected!");
 
-    if (IsInitialBlockDownload() && pindexBest->nHeight > 100)
+    if (IsInitialBlockDownload())
         throw JSONRPCError(-10, "Mojocoin is downloading blocks...");
 
     if (pindexBest->nHeight >= Params().LastPOWBlock())
@@ -381,7 +381,7 @@ Value getwork(const Array& params, bool fHelp)
     if (vNodes.empty())
         throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "Mojocoin is not connected!");
 
-    if (IsInitialBlockDownload() && pindexBest->nHeight > 100)
+    if (IsInitialBlockDownload())
         throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "Mojocoin is downloading blocks...");
 
     if (pindexBest->nHeight >= Params().LastPOWBlock())
