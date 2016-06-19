@@ -46,7 +46,7 @@ LDFLAGS=-Wl,--dynamicbase -Wl,--nxcompat -Wl,--large-address-aware -static
 TESTDEFS = -DTEST_DATA_DIR=$(abspath test/data)
 
 ifndef USE_UPNP
-        override USE_UPNP = -
+		override USE_UPNP = -
 endif
 ifneq (${USE_UPNP}, -)
  LIBS += -l miniupnpc -l iphlpapi
@@ -59,159 +59,159 @@ LIBS += -l mingwthrd -l kernel32 -l user32 -l gdi32 -l comdlg32 -l winspool -l w
 HEADERS = $(wildcard *.h)
 
 OBJS= \
-    obj/address.o \
-    obj/addressmap.o \
-    obj/aes.o \
-    obj/backtrace.o \
-    obj/buffers.o \
-    obj/channel.o \
-    obj/channeltls.o \
-    obj/circpathbias.o \
-    obj/circuitbuild.o \
-    obj/circuitlist.o \
-    obj/circuitmux.o \
-    obj/circuitmux_ewma.o \
-    obj/circuitstats.o \
-    obj/circuituse.o \
-    obj/command.o \
-    obj/compat.o \
-    obj/compat_libevent.o \
-    obj/config.o \
-    obj/config_codedigest.o \
-    obj/confparse.o \
-    obj/connection.o \
-    obj/connection_edge.o \
-    obj/connection_or.o \
-    obj/container.o \
-    obj/control.o \
-    obj/cpuworker.o \
-    obj/crypto.o \
-    obj/crypto_curve25519.o \
-    obj/crypto_format.o \
-    obj/curve25519-donna.o \
-    obj/di_ops.o \
-    obj/directory.o \
-    obj/dirserv.o \
-    obj/dirvote.o \
-    obj/dns.o \
-    obj/dnsserv.o \
-    obj/entrynodes.o \
-    obj/ext_orport.o \
-    obj/fp_pair.o \
-    obj/geoip.o \
-    obj/hibernate.o \
-    obj/log.o \
-    obj/memarea.o \
-    obj/mempool.o \
-    obj/microdesc.o \
-    obj/networkstatus.o \
-    obj/nodelist.o \
-    obj/onion.o \
-    obj/onion_fast.o \
-    obj/onion_main.o \
-    obj/onion_ntor.o \
-    obj/onion_tap.o \
-    obj/policies.o \
-    obj/procmon.o \
-    obj/reasons.o \
-    obj/relay.o \
-    obj/rendclient.o \
-    obj/rendcommon.o \
-    obj/rendmid.o \
-    obj/rendservice.o \
-    obj/rephist.o \
-    obj/replaycache.o \
-    obj/router.o \
-    obj/routerlist.o \
-    obj/routerparse.o \
-    obj/routerset.o \
-    obj/sandbox.o \
-    obj/statefile.o \
-    obj/status.o \
-    obj/torgzip.o \
-    obj/tortls.o \
-    obj/tor_util.o \
-    obj/transports.o \
-    obj/util_codedigest.o \
-    obj/mojocoin.o \
-    obj/alert.o \
-    obj/cleanse.o \
-    obj/base58.o \
-    obj/version.o \
-    obj/checkpoints.o \
-    obj/netbase.o \
-    obj/addrman.o \
-    obj/crypter.o \
-    obj/key.o \
-    obj/pubkey.o \
-    obj/ecwrapper.o \
-    obj/init.o \
-    obj/bitcoind.o \
-    obj/keystore.o \
-    obj/core.o \
-    obj/main.o \
-    obj/net.o \
-    obj/protocol.o \
-    obj/rpcclient.o \
-    obj/rpcprotocol.o \
-    obj/rpcserver.o \
-    obj/rpcmisc.o \
-    obj/rpcnet.o \
-    obj/rpcblockchain.o \
-    obj/rpcrawtransaction.o \
-    obj/rpcsmessage.o \
-    obj/timedata.o \
-    obj/script.o \
-    obj/scrypt.o \
-    obj/sync.o \
-    obj/txmempool.o \
-    obj/util.o \
-    obj/hash.o \
-    obj/noui.o \
-    obj/kernel.o \
-    obj/pbkdf2.o \
-    obj/chainparams.o \
-    obj/stealth.o \
-    obj/activemasternode.o \
-    obj/darksend.o \
-    obj/darksend-relay.o \
-    obj/instantx.o \
-    obj/masternodeconfig.o \
-    obj/masternodeman.o \
-    obj/masternode.o \
-    obj/masternode-payments.o \
-    obj/rpcdarksend.o \
-    obj/spork.o \
-    obj/crypto/hmac_sha256.o \
-    obj/crypto/hmac_sha512.o \
-    obj/crypto/ripemd160.o \
-    obj/crypto/sha1.o \
-    obj/crypto/sha256.o \
-    obj/crypto/sha512.o \
-    obj/smessage.o \
-    obj/cubehash.o \
-    obj/luffa.o \
-    obj/aes_helper.o \
-    obj/echo.o \
-    obj/shavite.o \
-    obj/simd.o \
-    obj/blake.o \
-    obj/bmw.o \
-    obj/groestl.o \
-    obj/jh.o \
-    obj/keccak.o \
-    obj/skein.o
+	obj/address.o \
+	obj/addressmap.o \
+	obj/aes.o \
+	obj/backtrace.o \
+	obj/buffers.o \
+	obj/channel.o \
+	obj/channeltls.o \
+	obj/circpathbias.o \
+	obj/circuitbuild.o \
+	obj/circuitlist.o \
+	obj/circuitmux.o \
+	obj/circuitmux_ewma.o \
+	obj/circuitstats.o \
+	obj/circuituse.o \
+	obj/command.o \
+	obj/compat.o \
+	obj/compat_libevent.o \
+	obj/config.o \
+	obj/config_codedigest.o \
+	obj/confparse.o \
+	obj/connection.o \
+	obj/connection_edge.o \
+	obj/connection_or.o \
+	obj/container.o \
+	obj/control.o \
+	obj/cpuworker.o \
+	obj/crypto.o \
+	obj/crypto_curve25519.o \
+	obj/crypto_format.o \
+	obj/curve25519-donna.o \
+	obj/di_ops.o \
+	obj/directory.o \
+	obj/dirserv.o \
+	obj/dirvote.o \
+	obj/dns.o \
+	obj/dnsserv.o \
+	obj/entrynodes.o \
+	obj/ext_orport.o \
+	obj/fp_pair.o \
+	obj/geoip.o \
+	obj/hibernate.o \
+	obj/log.o \
+	obj/memarea.o \
+	obj/mempool.o \
+	obj/microdesc.o \
+	obj/networkstatus.o \
+	obj/nodelist.o \
+	obj/onion.o \
+	obj/onion_fast.o \
+	obj/onion_main.o \
+	obj/onion_ntor.o \
+	obj/onion_tap.o \
+	obj/policies.o \
+	obj/procmon.o \
+	obj/reasons.o \
+	obj/relay.o \
+	obj/rendclient.o \
+	obj/rendcommon.o \
+	obj/rendmid.o \
+	obj/rendservice.o \
+	obj/rephist.o \
+	obj/replaycache.o \
+	obj/router.o \
+	obj/routerlist.o \
+	obj/routerparse.o \
+	obj/routerset.o \
+	obj/sandbox.o \
+	obj/statefile.o \
+	obj/status.o \
+	obj/torgzip.o \
+	obj/tortls.o \
+	obj/tor_util.o \
+	obj/transports.o \
+	obj/util_codedigest.o \
+	obj/mojocoin.o \
+	obj/alert.o \
+	obj/cleanse.o \
+	obj/base58.o \
+	obj/version.o \
+	obj/checkpoints.o \
+	obj/netbase.o \
+	obj/addrman.o \
+	obj/crypter.o \
+	obj/key.o \
+	obj/pubkey.o \
+	obj/ecwrapper.o \
+	obj/init.o \
+	obj/bitcoind.o \
+	obj/keystore.o \
+	obj/core.o \
+	obj/main.o \
+	obj/net.o \
+	obj/protocol.o \
+	obj/rpcclient.o \
+	obj/rpcprotocol.o \
+	obj/rpcserver.o \
+	obj/rpcmisc.o \
+	obj/rpcnet.o \
+	obj/rpcblockchain.o \
+	obj/rpcrawtransaction.o \
+	obj/rpcsmessage.o \
+	obj/timedata.o \
+	obj/script.o \
+	obj/scrypt.o \
+	obj/sync.o \
+	obj/txmempool.o \
+	obj/util.o \
+	obj/hash.o \
+	obj/noui.o \
+	obj/kernel.o \
+	obj/pbkdf2.o \
+	obj/chainparams.o \
+	obj/stealth.o \
+	obj/activemasternode.o \
+	obj/darksend.o \
+	obj/darksend-relay.o \
+	obj/instantx.o \
+	obj/masternodeconfig.o \
+	obj/masternodeman.o \
+	obj/masternode.o \
+	obj/masternode-payments.o \
+	obj/rpcdarksend.o \
+	obj/spork.o \
+	obj/crypto/hmac_sha256.o \
+	obj/crypto/hmac_sha512.o \
+	obj/crypto/ripemd160.o \
+	obj/crypto/sha1.o \
+	obj/crypto/sha256.o \
+	obj/crypto/sha512.o \
+	obj/smessage.o \
+	obj/cubehash.o \
+	obj/luffa.o \
+	obj/aes_helper.o \
+	obj/echo.o \
+	obj/shavite.o \
+	obj/simd.o \
+	obj/blake.o \
+	obj/bmw.o \
+	obj/groestl.o \
+	obj/jh.o \
+	obj/keccak.o \
+	obj/skein.o
 
 ifeq (${USE_WALLET}, 1)
-    DEFS += -DENABLE_WALLET
-    OBJS += \
-        obj/db.o \
-        obj/miner.o \
-        obj/rpcdump.o \
-        obj/rpcmining.o \
-        obj/rpcwallet.o \
-        obj/wallet.o \
-        obj/walletdb.o
+	DEFS += -DENABLE_WALLET
+	OBJS += \
+		obj/db.o \
+		obj/miner.o \
+		obj/rpcdump.o \
+		obj/rpcmining.o \
+		obj/rpcwallet.o \
+		obj/wallet.o \
+		obj/walletdb.o
 endif
 
 all: mojocoind.exe
@@ -243,18 +243,18 @@ obj/scrypt-arm.o: scrypt-arm.S
 	$(CXX) -c $(xCXXFLAGS) -MMD -o $@ $<
 
 obj/%.o: tor/%.c
-    $(CC) -c $(xCXXFLAGS) -MMD -MF $(@:%.o=%.d) -o $@ $<
-    @cp $(@:%.o=%.d) $(@:%.o=%.P); \
-    sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
-        -e '/^$$/ d' -e 's/$$/ :/' < $(@:%.o=%.d) >> $(@:%.o=%.P); \
-    rm -f $(@:%.o=%.d)
+	$(CC) -c $(xCXXFLAGS) -MMD -MF $(@:%.o=%.d) -o $@ $<
+	@cp $(@:%.o=%.d) $(@:%.o=%.P); \
+	sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
+		-e '/^$$/ d' -e 's/$$/ :/' < $(@:%.o=%.d) >> $(@:%.o=%.P); \
+	rm -f $(@:%.o=%.d)
 
 obj/%.o: tor/mojocoin.cpp
-    $(CXX) -c $(xCXXFLAGS) -MMD -MF $(@:%.o=%.d) -o $@ $<
-    @cp $(@:%.o=%.d) $(@:%.o=%.P); \
-    sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
-        -e '/^$$/ d' -e 's/$$/ :/' < $(@:%.o=%.d) >> $(@:%.o=%.P); \
-    rm -f $(@:%.o=%.d)
+	$(CXX) -c $(xCXXFLAGS) -MMD -MF $(@:%.o=%.d) -o $@ $<
+	@cp $(@:%.o=%.d) $(@:%.o=%.P); \
+	sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
+		-e '/^$$/ d' -e 's/$$/ :/' < $(@:%.o=%.d) >> $(@:%.o=%.P); \
+	rm -f $(@:%.o=%.d)
 
 clean:
 	-rm -f obj/*.o
