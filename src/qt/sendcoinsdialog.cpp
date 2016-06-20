@@ -43,7 +43,7 @@ SendCoinsDialog::SendCoinsDialog(QWidget *parent) :
 
 #if QT_VERSION >= 0x040700
     /* Do not move this to the XML file, Qt before 4.7 will choke on it */
-    ui->lineEditCoinControlChange->setPlaceholderText(tr("Enter a Mojocoin address (e.g. TVzkf3ahXFWhukoqs6wnZHqVFM3UvSDSP2)"));
+    ui->lineEditCoinControlChange->setPlaceholderText(tr("Enter a Mojocoin address (e.g. MDoSCJdKo7vNG1TfRXS4zuYWyYdtYLBcZm)"));
 #endif
 
     addEntry();
@@ -260,7 +260,7 @@ void SendCoinsDialog::on_sendButton_clicked()
             BitcoinUnits::formatWithUnit(
                 model->getOptionsModel()->getDisplayUnit(), 0.1 * COIN));
         strFee = QString(tr(
-            "(darksend requires this amount to be rounded up to the nearest %1)."
+            "(mojomix requires this amount to be rounded up to the nearest %1)."
         ).arg(strNearestAmount));
     } else {
         recipients[0].inputType = ALL_COINS;

@@ -19,5 +19,4 @@ void Shutdown();
 bool AppInit2(boost::thread_group& threadGroup);
 std::string HelpMessage();
 extern bool fDarkEnabled;
-
 #endif

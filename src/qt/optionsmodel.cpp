@@ -69,7 +69,7 @@ void OptionsModel::Init()
         SoftSetArg("-lang", language.toStdString());
 
     if (settings.contains("nDarksendRounds"))
-        SoftSetArg("-darksendrounds", settings.value("nDarksendRounds").toString().toStdString());
+        SoftSetArg("-mojomixrounds", settings.value("nDarksendRounds").toString().toStdString());
     if (settings.contains("nAnonymizeTransferAmount"))
         SoftSetArg("-anonymizemojocoinamount", settings.value("nAnonymizeTransferAmount").toString().toStdString());
 }

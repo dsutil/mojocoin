@@ -459,7 +459,7 @@ void CoinControlDialog::viewItemChanged(QTreeWidgetItem* item, int column)
             int rounds = pwalletMain->GetInputDarksendRounds(vin);
             if(coinControl->useDarkSend && rounds < nDarksendRounds) {
                 QMessageBox::warning(this, windowTitle(),
-                    tr("Non-anonymized input selected. <b>Darksend will be disabled.</b><br><br>If you still want to use Darksend, please deselect all non-nonymized inputs first and then check Darksend checkbox again."),
+                    tr("Non-anonymized input selected. <b>Mojomix will be disabled.</b><br><br>If you still want to use Mojomix, please deselect all non-nonymized inputs first and then check Mojomix checkbox again."),
                     QMessageBox::Ok, QMessageBox::Ok);
                 coinControl->useDarkSend = false;
             }

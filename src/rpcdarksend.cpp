@@ -59,7 +59,7 @@ Value darksend(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() == 0)
         throw runtime_error(
-            "darksend <mojocoinaddress> <amount>\n"
+            "mojomix <mojocoinaddress> <amount>\n"
             "mojocoinaddress, reset, or auto (AutoDenominate)"
             "<amount> is a real and is rounded to the nearest 0.00000001"
             + HelpRequiringPassphrase());
@@ -69,19 +69,19 @@ Value darksend(const Array& params, bool fHelp)
 
     if(params[0].get_str() == "auto"){
         if(fMasterNode)
-            return "DarkSend is not supported from masternodes";
+            return "Mojomix is not supported from masternodes";
 
         return "DoAutomaticDenominating " + (darkSendPool.DoAutomaticDenominating() ? "successful" : ("failed: " + darkSendPool.GetStatus()));
     }
 
     if(params[0].get_str() == "reset"){
         darkSendPool.Reset();
-        return "successfully reset darksend";
+        return "successfully reset mojomix";
     }
 
     if (params.size() != 2)
         throw runtime_error(
-            "darksend <mojocoinaddress> <amount>\n"
+            "mojomix <mojocoinaddress> <amount>\n"
             "mojocoinaddress, denominate, or auto (AutoDenominate)"
             "<amount> is type \"real\" and will be rounded to the nearest 0.1"
             + HelpRequiringPassphrase());

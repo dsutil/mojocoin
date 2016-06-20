@@ -214,6 +214,7 @@ std::string HelpMessage()
     strUsage += "  -listen                " + _("Accept connections from outside (default: 1 if no -proxy or -connect)") + "\n";
     strUsage += "  -bind=<addr>           " + _("Bind to given address. Use [host]:port notation for IPv6") + "\n";
     strUsage += "  -dnsseed               " + _("Query for peer addresses via DNS lookup, if low on addresses (default: 1 unless -connect)") + "\n";
+    strUsage += "  -onionseed             " + _("Find peers using .onion seeds (default: 1 unless -connect)") + "\n";
     strUsage += "  -forcednsseed          " + _("Always query for peer addresses via DNS lookup (default: 0)") + "\n";
     strUsage += "  -synctime              " + _("Sync time with other nodes. Disable if time on your system is precise e.g. syncing with NTP (default: 1)") + "\n";
     strUsage += "  -banscore=<n>          " + _("Threshold for disconnecting misbehaving peers (default: 100)") + "\n";
@@ -295,10 +296,10 @@ strUsage += "\n" + _("Masternode options:") + "\n";
     strUsage += "  -masternodeminprotocol=<n> " + _("Ignore masternodes less than version (example: 61401; default : 0)") + "\n";
 
     strUsage += "\n" + _("MojoMix options:") + "\n";
-    strUsage += "  -enabledarksend=<n>          " + _("Enable use of automated darksend for funds stored in this wallet (0-1, default: 0)") + "\n";
-    strUsage += "  -darksendrounds=<n>          " + _("Use N separate masternodes to anonymize funds  (2-8, default: 2)") + "\n";
+    strUsage += "  -enablemojomix=<n>          " + _("Enable use of automated mojomix for funds stored in this wallet (0-1, default: 0)") + "\n";
+    strUsage += "  -mojomixendrounds=<n>          " + _("Use N separate masternodes to anonymize funds  (2-8, default: 2)") + "\n";
     strUsage += "  -anonymizemojocoinamount=<n> " + _("Keep N Mojocoin anonymized (default: 0)") + "\n";
-    strUsage += "  -liquidityprovider=<n>       " + _("Provide liquidity to Darksend by infrequently mixing coins on a continual basis (0-100, default: 0, 1=very frequent, high fees, 100=very infrequent, low fees)") + "\n";
+    strUsage += "  -liquidityprovider=<n>       " + _("Provide liquidity to mojomix by infrequently mixing coins on a continual basis (0-100, default: 0, 1=very frequent, high fees, 100=very infrequent, low fees)") + "\n";
 
     strUsage += "\n" + _("InstantX options:") + "\n";
     strUsage += "  -enableinstantx=<n>    " + _("Enable instantx, show confirmations for locked transactions (bool, default: true)") + "\n";
@@ -405,6 +406,7 @@ bool AppInit2(boost::thread_group& threadGroup)
 
     if (mapArgs.count("-connect") && mapMultiArgs["-connect"].size() > 0) {
         // when only connecting to trusted nodes, do not seed via DNS, or listen by default
+        SoftSetBoolArg("-onionseed", false);
         if (SoftSetBoolArg("-dnsseed", false))
             LogPrintf("AppInit2 : parameter interaction: -connect set -> setting -dnsseed=0\n");
         if (SoftSetBoolArg("-listen", false))
@@ -1089,9 +1091,9 @@ bool AppInit2(boost::thread_group& threadGroup)
         }
     }
 
-    fEnableDarksend = GetBoolArg("-enabledarksend", false);
+    fEnableDarksend = GetBoolArg("-enablemojomix", false);
 
-    nDarksendRounds = GetArg("-darksendrounds", 2);
+    nDarksendRounds = GetArg("-mojomixrounds", 2);
     if(nDarksendRounds > 16) nDarksendRounds = 16;
     if(nDarksendRounds < 1) nDarksendRounds = 1;
 

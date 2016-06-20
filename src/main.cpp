@@ -674,6 +674,10 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CTransaction &tx, bool fLimitFree,
     if (tx.IsCoinStake())
         return tx.DoS(100, error("AcceptToMemoryPool : coinstake as individual tx"));
 
+    // To help v0.1.5 clients who would see it as a negative number
+    if ((int64_t)tx.nLockTime > std::numeric_limits<int>::max())
+        return error("CTxMemPool::accept() : not accepting nLockTime beyond 2038 yet");
+
     // Rather not work on nonstandard transactions (unless -testnet)
     string reason;
     if (!TestNet() && !IsStandardTx(tx, reason))
@@ -1320,7 +1324,6 @@ int64_t GetProofOfStakeReward(const CBlockIndex* pindexPrev, int64_t nCoinAge, i
    }
 
     int64_t nSubsidy = nCoinAge * nRewardCoinYear / 365 / COIN;
-
     return nSubsidy + nFees;
 }
 
@@ -2297,14 +2300,20 @@ bool CTransaction::GetCoinAge(CTxDB& txdb, const CBlockIndex* pindexPrev, uint64
         int64_t nValueIn = txPrev.vout[txin.prevout.n].nValue;
         bnCentSecond += CBigNum(nValueIn) * (nTime-txPrev.nTime) / CENT;
 
-        //if (fDebug && GetBoolArg("-printcoinage"))
-        //    printf("coin age nValueIn=%"PRId64" nTimeDiff=%d bnCentSecond=%s\n", nValueIn, nTime - txPrev.nTime, bnCentSecond.ToString().c_str());
     }
 
-    CBigNum bnCoinDay = bnCentSecond * CENT / (24 * 60 * 60);
-    //if (fDebug && GetBoolArg("-printcoinage"))
-    //    printf("coin age bnCoinDay=%s\n", bnCoinDay.ToString().c_str());
-    nCoinAge = bnCoinDay.getuint64();
+    // Int64 overflow workaround.
+    if (pindexPrev->nHeight > HARD_FORK_BLOCK)
+    {
+        CBigNum bnCoinDay = bnCentSecond * CENT / COIN / (24 * 60 * 60);
+        nCoinAge = bnCoinDay.getuint64() * COIN;
+    }
+    else
+    {
+        CBigNum bnCoinDay = bnCentSecond * CENT / (24 * 60 * 60);
+        nCoinAge = bnCoinDay.getuint64();
+    }
+
     return true;
 }
 /*
@@ -2460,11 +2469,14 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
         for (unsigned int i = 2; i < vtx.size(); i++)
             if (vtx[i].IsCoinStake())
                 return DoS(100, error("CheckBlock() : more than one coinstake"));
-    }
+        // Check coinstake timestamp
+        if (!CheckCoinStakeTimestamp(GetBlockTime(), (int64_t)vtx[1].nTime))
+            return DoS(50, error("CheckBlock() : coinstake timestamp violation nTimeBlock=%"PRId64" nTimeTx=%u", GetBlockTime(), vtx[1].nTime));
 
-    // Check proof-of-stake block signature
-    if (fCheckSig && !CheckBlockSignature())
-        return DoS(100, error("CheckBlock() : bad proof-of-stake block signature"));
+        // NovaCoin: check proof-of-stake block signature
+        if (fCheckSig && !CheckBlockSignature())
+            return DoS(100, error("CheckBlock() : bad proof-of-stake block signature"));
+    }
 
 
 // ----------- instantX transaction scanning -----------
@@ -2627,7 +2639,7 @@ bool CBlock::AcceptBlock()
         return DoS(50, error("AcceptBlock() : coinbase timestamp is too early"));
 
     // Check coinstake timestamp
-    if (IsProofOfStake() && !CheckCoinStakeTimestamp(nHeight, GetBlockTime(), (int64_t)vtx[1].nTime))
+    if (IsProofOfStake() && !CheckCoinStakeTimestamp(GetBlockTime(), (int64_t)vtx[1].nTime))
         return DoS(50, error("AcceptBlock() : coinstake timestamp violation nTimeBlock=%d nTimeTx=%u", GetBlockTime(), vtx[1].nTime));
 
     // Check proof-of-work or proof-of-stake
@@ -2772,6 +2784,39 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock)
     {
         LogPrintf("ProcessBlock: ORPHAN BLOCK %lu, prev=%s\n", (unsigned long)mapOrphanBlocks.size(), pblock->hashPrevBlock.ToString());
 
+        // Ask this guy to fill in what we're missing
+        if (pfrom)
+        {
+            COrphanBlock* pblock2 = new COrphanBlock();
+            {
+                CDataStream ss(SER_DISK, CLIENT_VERSION);
+                ss << *pblock;
+                pblock2->vchBlock = std::vector<unsigned char>(ss.begin(), ss.end());
+            }
+            pblock2->hashBlock = hash;
+            pblock2->hashPrev = pblock->hashPrevBlock;
+            pblock2->stake = pblock->GetProofOfStake();
+            mapOrphanBlocks.insert(make_pair(hash, pblock2));
+            mapOrphanBlocksByPrev.insert(make_pair(pblock2->hashPrev, pblock2));
+            // ppcoin: check proof-of-stake
+            if (pblock->IsProofOfStake())
+            {
+                // Limited duplicity on stake: prevents block flood attack
+                // Duplicate stake allowed only when there is orphan child block
+                //if (setStakeSeenOrphan.count(pblock2->GetProofOfStake()) && !mapOrphanBlocksByPrev.count(hash) && !Checkpoints::WantedByPendingSyncCheckpoint(hash))
+                if (setStakeSeenOrphan.count(pblock->GetProofOfStake()) && !mapOrphanBlocksByPrev.count(hash))
+                    return error("ProcessBlock() : duplicate proof-of-stake (%s, %d) for orphan block %s", pblock->GetProofOfStake().first.ToString().c_str(), pblock->GetProofOfStake().second, hash.ToString().c_str());
+                else
+                    setStakeSeenOrphan.insert(pblock->GetProofOfStake());
+            }
+            PushGetBlocks(pfrom, pindexBest, GetOrphanRoot(pblock2->hashBlock));
+            // ppcoin: getblocks may not obtain the ancestor block rejected
+            // earlier by duplicate-stake check so we ask for it again directly
+            if (!IsInitialBlockDownload())
+                pfrom->AskFor(CInv(MSG_BLOCK, WantedByOrphan(pblock2)));
+        }
+        return true;
+/*
         // Accept orphans as long as there is a node to request its parents from
         if (pfrom) {
             // ppcoin: check proof-of-stake
@@ -2805,6 +2850,7 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock)
                 pfrom->AskFor(CInv(MSG_BLOCK, WantedByOrphan(pblock2)));
         }
         return true;
+*/
     }
 
     // Store to disk
@@ -2905,7 +2951,7 @@ bool CBlock::SignBlock(CWallet& wallet, int64_t nFees)
     if (nSearchTime > nLastCoinStakeSearchTime)
     {
         int64_t nSearchInterval = 1;
-        if (wallet.CreateCoinStake(wallet, nBits, nSearchInterval, nFees, txCoinStake, key))
+        if (wallet.CreateCoinStakeV2(wallet, nBits, nSearchInterval, nFees, txCoinStake, key))
         {
             if (txCoinStake.nTime >= pindexBest->GetPastTimeLimit()+1)
             {
