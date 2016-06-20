@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET = mojocoin-qt
-VERSION = 1.1.0.0
+VERSION = 2.0.0.0
 INCLUDEPATH += src src/json src/qt src/qt/plugins/mrichtexteditor src/tor 
 QT += network printsupport core gui
 DEFINES += ENABLE_WALLET

@@ -849,6 +849,16 @@ void ThreadSocketHandler()
             }
             else
             {
+/*                
+                // According to the internet TCP_NODELAY is not carried into accepted sockets
+                // on all platforms.  Set it again here just to be sure.
+                int set = 1;
+#ifdef WIN32
+                setsockopt(hSocket, IPPROTO_TCP, TCP_NODELAY, (const char*)&set, sizeof(int));
+#else
+                setsockopt(hSocket, IPPROTO_TCP, TCP_NODELAY, (void*)&set, sizeof(int));
+#endif
+*/
                 LogPrint("net", "accepted connection %s\n", addr.ToString());
                 CNode* pnode = new CNode(hSocket, addr, "", true);
                 pnode->AddRef();
@@ -1031,10 +1041,14 @@ void ThreadMapPort()
                 /* miniupnpc 1.5 */
                 r = UPNP_AddPortMapping(urls.controlURL, data.first.servicetype,
                                     port.c_str(), port.c_str(), lanaddr, strDesc.c_str(), "TCP", 0);
+#elif MINIUPNPC_API_VERSION < 14
+    /* miniupnpc 1.6 */
+    int error = 0;
+    devlist = upnpDiscover(2000, multicastif, minissdpdpath, 0, 0, &error);
 #else
-                /* miniupnpc 1.6 */
-                r = UPNP_AddPortMapping(urls.controlURL, data.first.servicetype,
-                                    port.c_str(), port.c_str(), lanaddr, strDesc.c_str(), "TCP", 0, "0");
+    /* miniupnpc 1.9.20150730 */
+    int error = 0;
+    devlist = upnpDiscover(2000, multicastif, minissdpdpath, 0, 0, 2, &error);
 #endif
 
                 if(r!=UPNPCOMMAND_SUCCESS)
@@ -1089,7 +1103,7 @@ void MapPort(bool)
     // Intentionally left blank.
 }
 #endif
-
+/*
 // hidden service seeds
 static const char *strMainNetOnionSeed[][1] = {
     {"cyhtnpwblnpexjov.onion"},
@@ -1128,12 +1142,12 @@ void ThreadOnionSeed()
 
     printf("%d addresses found from .onion seeds\n", found);
 }
-
+*/
 void ThreadDNSAddressSeed()
 {
     // goal: only query DNS seeds if address need is acute
     if ((addrman.size() > 0) &&
-        (!GetBoolArg("-forcednsseed", false))) {
+        (!GetBoolArg("-forcednsseed", true))) {
         MilliSleep(11 * 1000);
 
         LOCK(cs_vNodes);
@@ -1707,11 +1721,12 @@ void StartNode(boost::thread_group& threadGroup)
     else
         threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "dnsseed", &ThreadDNSAddressSeed));
 
+/*
     if (!GetBoolArg("-onionseed", true))
         printf(".onion seeding disabled\n");
     else
         threadGroup.create_thread(boost::bind(&TraceThread<boost::function<void()> >, "onionseed", &ThreadOnionSeed));
-
+*/
 #ifdef USE_UPNP
     // Map ports with UPnP
     MapPort(GetBoolArg("-upnp", USE_UPNP));

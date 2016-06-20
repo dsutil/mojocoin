@@ -14,8 +14,8 @@ Mojocoin uses libsecp256k1,
 Block Spacing: 60 Seconds
 Stake Minimum Age: 24 Hours
 
-Port: 22256
-RPC Port: 22257
+Port: 22255
+RPC Port: 22254
 
 
 BUILD LINUX

@@ -51,34 +51,34 @@ LIBS+= \
 # Hardening
 # Make some classes of vulnerabilities unexploitable in case one is discovered.
 #
-    # This is a workaround for Ubuntu bug #691722, the default -fstack-protector causes
-    # -fstack-protector-all to be ignored unless -fno-stack-protector is used first.
-    # see: https://bugs.launchpad.net/ubuntu/+source/gcc-4.5/+bug/691722
-    HARDENING=-fno-stack-protector
+	# This is a workaround for Ubuntu bug #691722, the default -fstack-protector causes
+	# -fstack-protector-all to be ignored unless -fno-stack-protector is used first.
+	# see: https://bugs.launchpad.net/ubuntu/+source/gcc-4.5/+bug/691722
+	HARDENING=-fno-stack-protector
 
-    # Stack Canaries
-    # Put numbers at the beginning of each stack frame and check that they are the same.
-    # If a stack buffer if overflowed, it writes over the canary number and then on return
-    # when that number is checked, it won't be the same and the program will exit with
-    # a "Stack smashing detected" error instead of being exploited.
-    HARDENING+=-fstack-protector-all -Wstack-protector
+	# Stack Canaries
+	# Put numbers at the beginning of each stack frame and check that they are the same.
+	# If a stack buffer if overflowed, it writes over the canary number and then on return
+	# when that number is checked, it won't be the same and the program will exit with
+	# a "Stack smashing detected" error instead of being exploited.
+	HARDENING+=-fstack-protector-all -Wstack-protector
 
-    # Make some important things such as the global offset table read only as soon as
-    # the dynamic linker is finished building it. This will prevent overwriting of addresses
-    # which would later be jumped to.
-    LDHARDENING+=-Wl,-z,relro -Wl,-z,now
+	# Make some important things such as the global offset table read only as soon as
+	# the dynamic linker is finished building it. This will prevent overwriting of addresses
+	# which would later be jumped to.
+	LDHARDENING+=-Wl,-z,relro -Wl,-z,now
 
-    # Build position independent code to take advantage of Address Space Layout Randomization
-    # offered by some kernels.
-    # see doc/build-unix.txt for more information.
-    ifdef PIE
-        HARDENING+=-fPIE
-        LDHARDENING+=-pie
-    endif
+	# Build position independent code to take advantage of Address Space Layout Randomization
+	# offered by some kernels.
+	# see doc/build-unix.txt for more information.
+	ifdef PIE
+		HARDENING+=-fPIE
+		LDHARDENING+=-pie
+	endif
 
-    # -D_FORTIFY_SOURCE=2 does some checking for potentially exploitable code patterns in
-    # the source such overflowing a statically defined buffer.
-    HARDENING+=-D_FORTIFY_SOURCE=2
+	# -D_FORTIFY_SOURCE=2 does some checking for potentially exploitable code patterns in
+	# the source such overflowing a statically defined buffer.
+	HARDENING+=-D_FORTIFY_SOURCE=2
 #
 
 
@@ -87,59 +87,59 @@ DEBUGFLAGS=-g
 # CXXFLAGS can be specified on the make command line, so we use xCXXFLAGS that only
 # adds some defaults in front. Unfortunately, CXXFLAGS=... $(CXXFLAGS) does not work.
 xCXXFLAGS=-O0 -msse2 -pthread -Wall -Wextra -Wno-ignored-qualifiers -Wformat -Wformat-security -Wno-unused-parameter \
-    $(DEBUGFLAGS) $(DEFS) $(HARDENING) $(CXXFLAGS)
+	$(DEBUGFLAGS) $(DEFS) $(HARDENING) $(CXXFLAGS)
 
 # LDFLAGS can be specified on the make command line, so we use xLDFLAGS that only
 # adds some defaults in front. Unfortunately, LDFLAGS=... $(LDFLAGS) does not work.
 xLDFLAGS=$(LDHARDENING) $(LDFLAGS)
 
 OBJS= \
-    obj/alert.o \
-    obj/version.o \
-    obj/checkpoints.o \
-    obj/netbase.o \
-    obj/addrman.o \
-    obj/crypter.o \
-    obj/key.o \
-    obj/init.o \
-    obj/bitcoind.o \
-    obj/keystore.o \
-    obj/core.o \
-    obj/main.o \
-    obj/net.o \
-    obj/protocol.o \
-    obj/rpcclient.o \
-    obj/rpcprotocol.o \
-    obj/rpcserver.o \
-    obj/rpcmisc.o \
-    obj/rpcnet.o \
-    obj/rpcblockchain.o \
-    obj/rpcrawtransaction.o \
-    obj/timedata.o \
-    obj/script.o \
-    obj/sync.o \
-    obj/txmempool.o \
-    obj/util.o \
-    obj/hash.o \
-    obj/noui.o \
-    obj/kernel.o \
-    obj/pbkdf2.o \
-    obj/scrypt.o \
-    obj/scrypt-arm.o \
-    obj/scrypt-x86.o \
-    obj/scrypt-x86_64.o \
-    obj/chainparams.o
+	obj/alert.o \
+	obj/version.o \
+	obj/checkpoints.o \
+	obj/netbase.o \
+	obj/addrman.o \
+	obj/crypter.o \
+	obj/key.o \
+	obj/init.o \
+	obj/bitcoind.o \
+	obj/keystore.o \
+	obj/core.o \
+	obj/main.o \
+	obj/net.o \
+	obj/protocol.o \
+	obj/rpcclient.o \
+	obj/rpcprotocol.o \
+	obj/rpcserver.o \
+	obj/rpcmisc.o \
+	obj/rpcnet.o \
+	obj/rpcblockchain.o \
+	obj/rpcrawtransaction.o \
+	obj/timedata.o \
+	obj/script.o \
+	obj/sync.o \
+	obj/txmempool.o \
+	obj/util.o \
+	obj/hash.o \
+	obj/noui.o \
+	obj/kernel.o \
+	obj/pbkdf2.o \
+	obj/scrypt.o \
+	obj/scrypt-arm.o \
+	obj/scrypt-x86.o \
+	obj/scrypt-x86_64.o \
+	obj/chainparams.o
 
 ifeq (${USE_WALLET}, 1)
-    DEFS += -DENABLE_WALLET
-    OBJS += \
-        obj/db.o \
-        obj/miner.o \
-        obj/rpcdump.o \
-        obj/rpcmining.o \
-        obj/rpcwallet.o \
-        obj/wallet.o \
-        obj/walletdb.o
+	DEFS += -DENABLE_WALLET
+	OBJS += \
+		obj/db.o \
+		obj/miner.o \
+		obj/rpcdump.o \
+		obj/rpcmining.o \
+		obj/rpcwallet.o \
+		obj/wallet.o \
+		obj/walletdb.o
 endif
 
 all: mojocoind
@@ -173,7 +173,7 @@ obj/%.o: %.cpp
 	$(CXX) -c $(xCXXFLAGS) -MMD -MF $(@:%.o=%.d) -o $@ $<
 	@cp $(@:%.o=%.d) $(@:%.o=%.P); \
 	  sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
-	      -e '/^$$/ d' -e 's/$$/ :/' < $(@:%.o=%.d) >> $(@:%.o=%.P); \
+		  -e '/^$$/ d' -e 's/$$/ :/' < $(@:%.o=%.d) >> $(@:%.o=%.P); \
 	  rm -f $(@:%.o=%.d)
 
 mojocoind: $(OBJS:obj/%=obj/%)

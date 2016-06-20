@@ -238,7 +238,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     connect(overviewPage, SIGNAL(transactionClicked(QModelIndex)), this, SLOT(gotoHistoryPage()));
     connect(overviewPage, SIGNAL(transactionClicked(QModelIndex)), transactionView, SLOT(focusTransaction(QModelIndex)));
 
-    connect(TradingAction, SIGNAL(triggered()), tradingDialogPage, SLOT(InitTrading()));
+    //connect(TradingAction, SIGNAL(triggered()), tradingDialogPage, SLOT(InitTrading()));
 
     // Double-clicking on a transaction on the transaction history page shows details
     connect(transactionView, SIGNAL(doubleClicked(QModelIndex)), transactionView, SLOT(showDetails()));
@@ -318,18 +318,18 @@ void BitcoinGUI::createActions()
     blockAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_6));
     blockAction->setCheckable(true);
     tabGroup->addAction(blockAction);
-
+/*
     TradingAction = new QAction(tr("&Trade"), this);
     TradingAction ->setToolTip(tr("Start Trading"));
     TradingAction ->setCheckable(true);
     TradingAction ->setShortcut(QKeySequence(Qt::ALT + Qt::Key_8));
     TradingAction->setProperty("objectName","TradingAction");
     tabGroup->addAction(TradingAction);
-
+*/
     showBackupsAction = new QAction(QIcon(":/icons/browse"), tr("Show Auto&Backups"), this);
     showBackupsAction->setStatusTip(tr("S"));
 
-    connect(TradingAction, SIGNAL(triggered()), this, SLOT(gotoTradingPage()));
+    //connect(TradingAction, SIGNAL(triggered()), this, SLOT(gotoTradingPage()));
     connect(blockAction, SIGNAL(triggered()), this, SLOT(gotoBlockBrowser()));
     connect(overviewAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(overviewAction, SIGNAL(triggered()), this, SLOT(gotoOverviewPage()));
@@ -464,7 +464,7 @@ void BitcoinGUI::createToolBars()
     }
 
     toolbar->addAction(blockAction);
-    toolbar->addAction(TradingAction);
+//    toolbar->addAction(TradingAction);
     netLabel = new QLabel();
 
     QWidget *spacer = makeToolBarSpacer();
@@ -973,7 +973,7 @@ void BitcoinGUI::gotoAddressBookPage()
 void BitcoinGUI::gotoTradingPage()
 {
 
-     TradingAction->setChecked(true);
+//     TradingAction->setChecked(true);
      centralStackedWidget->setCurrentWidget(tradingDialogPage);
 
   //  exportAction->setEnabled(false);

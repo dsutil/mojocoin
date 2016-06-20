@@ -18,15 +18,14 @@
 
 class CValidationState;
 
-#define START_MASTERNODE_PAYMENTS_TESTNET 1462406400//1429456427
-#define START_MASTERNODE_PAYMENTS 1462406400//1429456427
+#define START_MASTERNODE_PAYMENTS_TESTNET 1467331200    // July 1st, 2016
+#define START_MASTERNODE_PAYMENTS 1467331200            // July 1st, 2016
 
 static const int64_t DARKSEND_COLLATERAL = (0.01*COIN);
 static const int64_t DARKSEND_POOL_MAX = (199999.99*COIN);
 
 static const int64_t STATIC_POS_REWARD = 1 * COIN; //Constant reward of 1 MOJO per COIN i.e. 8%
 static const int64_t TARGET_SPACING = 60;
-static const signed int HARD_FORK_BLOCK = 100000;
 
 #define INSTANTX_SIGNATURES_REQUIRED           10
 #define INSTANTX_SIGNATURES_TOTAL              15
@@ -76,7 +75,7 @@ inline int64_t FutureDrift(int64_t nTime) { return nTime + DRIFT; }
 /** "reject" message codes **/
 static const unsigned char REJECT_INVALID = 0x10;
 
-inline int64_t GetMNCollateral(int nHeight) { return nHeight>=57000 ? 10000 : 100000; }
+inline int64_t GetMNCollateral(int nHeight) { return 100000; }
 
 extern CScript COINBASE_FLAGS;
 extern CCriticalSection cs_main;
@@ -154,7 +153,7 @@ void ThreadImport(std::vector<boost::filesystem::path> vImportFiles);
 bool CheckProofOfWork(uint256 hash, unsigned int nBits);
 unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfStake);
 int64_t GetProofOfWorkReward(int nHeight, int64_t nFees);
-int64_t GetProofOfStakeReward(const CBlockIndex* pindexPrev, int64_t nCoinAge, int64_t nFees);
+int64_t GetProofOfStakeReward(const CBlockIndex* pindexPrev, int64_t nCoinAge, int64_t nFees, int64_t nValueOut);
 bool IsInitialBlockDownload();
 bool IsConfirmedInNPrevBlocks(const CTxIndex& txindex, const CBlockIndex* pindexFrom, int nMaxDepth, int& nActualDepth);
 std::string GetWarnings(std::string strFor);
