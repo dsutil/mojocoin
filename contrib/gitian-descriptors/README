@@ -18,7 +18,7 @@ https://github.com/bitcoin/bitcoin/blob/master/doc/gitian-building.md#setting-up
 Download a 64bit debian netinstall iso from:
 https://www.debian.org/CD/netinst/#netinst-stable
 
-$ wget http://cdimage.debian.org/debian-cd/8.2.0/amd64/iso-cd/debian-8.2.0-amd64-netinst.iso
+$ wget http://cdimage.debian.org/debian-cd/8.5.0/amd64/iso-cd/debian-8.5.0-amd64-netinst.iso
 
 
 
