@@ -2302,17 +2302,8 @@ bool CTransaction::GetCoinAge(CTxDB& txdb, const CBlockIndex* pindexPrev, uint64
 
     }
 
-    // Int64 overflow workaround.
-    if (pindexPrev->nHeight > HARD_FORK_BLOCK)
-    {
-        CBigNum bnCoinDay = bnCentSecond * CENT / COIN / (24 * 60 * 60);
-        nCoinAge = bnCoinDay.getuint64() * COIN;
-    }
-    else
-    {
-        CBigNum bnCoinDay = bnCentSecond * CENT / (24 * 60 * 60);
-        nCoinAge = bnCoinDay.getuint64();
-    }
+    CBigNum bnCoinDay = bnCentSecond * CENT / COIN / (24 * 60 * 60);
+    nCoinAge = bnCoinDay.getuint64() * COIN;
 
     return true;
 }
