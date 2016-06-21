@@ -349,7 +349,7 @@ QString TransactionTableModel::formatTxType(const TransactionRecord *wtx) const
     case TransactionRecord::RecvFromOther:
         return tr("Received from");
     case TransactionRecord::RecvWithDarksend:
-        return tr("Received via Darksend");
+        return tr("Received via MojoMix");
     case TransactionRecord::SendToAddress:
     case TransactionRecord::SendToOther:
         return tr("Sent to");
@@ -359,15 +359,15 @@ QString TransactionTableModel::formatTxType(const TransactionRecord *wtx) const
         return tr("Mined");
 
     case TransactionRecord::DarksendDenominate:
-        return tr("Darksend Denominate");
+        return tr("MojoMix Denominate");
     case TransactionRecord::DarksendCollateralPayment:
-        return tr("Darksend Collateral Payment");
+        return tr("MojoMix Collateral Payment");
     case TransactionRecord::DarksendMakeCollaterals:
-        return tr("Darksend Make Collateral Inputs");
+        return tr("MojoMix Make Collateral Inputs");
     case TransactionRecord::DarksendCreateDenominations:
-        return tr("Darksend Create Denominations");
-    case TransactionRecord::Darksent:
-        return tr("Darksent");
+        return tr("MojoMix Create Denominations");
+    case TransactionRecord::MojoMixed:
+        return tr("MojoMixed");
 
     default:
         return QString();
@@ -408,7 +408,7 @@ QString TransactionTableModel::formatTxToAddress(const TransactionRecord *wtx, b
     case TransactionRecord::RecvWithDarksend:
     case TransactionRecord::SendToAddress:
     case TransactionRecord::Generated:
-    case TransactionRecord::Darksent:
+    case TransactionRecord::MojoMixed:
         return lookupAddress(wtx->address, tooltip) + watchAddress;
     case TransactionRecord::SendToOther:
         return QString::fromStdString(wtx->address) + watchAddress;

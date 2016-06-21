@@ -25,7 +25,7 @@ DNSSeed Thread Fix
 
 Scale up addrman
 
-Sync fixes, CPU use, Darksend fixes
+Sync fixes, CPU use, MojoMix fixes
 https://github.com/SCDeveloper/All-Work-Done-Prior-to-DarkSilk-RC-Repo/commit/0e1fe7055bf536c5545849264724aeecdcf3201b
 
 Guard against OpenSSL's new strict DER checks
@@ -196,7 +196,7 @@ Fix possible MN breakage during mixing
 
 Remove donations to multisig addresses
 
-Further fixes to Darksend
+Further fixes to MojoMix
 
 Added nDenom check for ssa
 

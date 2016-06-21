@@ -849,7 +849,7 @@ CAmount CWallet::GetDebit(const CTxIn &txin, const isminefilter& filter) const
     return 0;
 }
 
-// Recursively determine the rounds of a given input (How deep is the Darksend chain for a given input)
+// Recursively determine the rounds of a given input (How deep is the MojoMix chain for a given input)
 int CWallet::GetRealInputDarksendRounds(CTxIn in, int rounds) const
 {
     static std::map<uint256, CTransaction> mDenomWtxes;
@@ -2584,7 +2584,7 @@ bool CWallet::CreateCollateralTransaction(CTransaction& txCollateral, std::strin
 
     if (!SelectCoinsCollateral(vCoinsCollateral, nValueIn2))
     {
-        strReason = "Error: Darksend requires a collateral transaction and could not locate an acceptable input!";
+        strReason = "Error: MojoMix requires a collateral transaction and could not locate an acceptable input!";
         return false;
     }
 
@@ -2717,12 +2717,12 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, int64_t> >& vecSend, 
                     if(coin_type == ALL_COINS) {
                         strFailReason = _(" Insufficient funds.");
                     } else if (coin_type == ONLY_NOT10000IFMN) {
-                        strFailReason = _(" Unable to locate enough Darksend non-denominated funds for this transaction.");
+                        strFailReason = _(" Unable to locate enough MojoMix non-denominated funds for this transaction.");
                     } else if (coin_type == ONLY_NONDENOMINATED_NOT10000IFMN ) {
-                        strFailReason = _(" Unable to locate enough Darksend non-denominated funds for this transaction that are not equal 1000 MOJO.");
+                        strFailReason = _(" Unable to locate enough MojoMix non-denominated funds for this transaction that are not equal 1000 MOJO.");
                     } else {
-                        strFailReason = _(" Unable to locate enough Darksend denominated funds for this transaction.");
-                        strFailReason += _(" Darksend uses exact denominated amounts to send funds, you might simply need to anonymize some more coins.");
+                        strFailReason = _(" Unable to locate enough MojoMix denominated funds for this transaction.");
+                        strFailReason += _(" MojoMix uses exact denominated amounts to send funds, you might simply need to anonymize some more coins.");
                     }
 
                     if(useIX){
@@ -4307,7 +4307,7 @@ string CWallet::PrepareDarksendDenominate(int minRounds, int maxRounds)
 
     if(darkSendPool.GetState() != POOL_STATUS_ERROR && darkSendPool.GetState() != POOL_STATUS_SUCCESS)
         if(darkSendPool.GetEntriesCount() > 0)
-            return _("Error: You already have pending entries in the Darksend pool");
+            return _("Error: You already have pending entries in the MojoMix pool");
 
     // ** find the coins we'll use
     std::vector<CTxIn> vCoins;

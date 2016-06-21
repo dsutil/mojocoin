@@ -84,7 +84,7 @@ void CDarksendPool::ProcessMessageDarksend(CNode* pfrom, std::string& strCommand
             if(pmn->nLastDsq != 0 &&
                 pmn->nLastDsq + mnodeman.CountMasternodesAboveProtocol(MIN_POOL_PEER_PROTO_VERSION)/5 > mnodeman.nDsqCount){
                 LogPrintf("dsa -- last dsq too recent, must wait. %s \n", pfrom->addr.ToString().c_str());
-                std::string strError = _("Last Darksend was too recent.");
+                std::string strError = _("Last MojoMix was too recent.");
                 pfrom->PushMessage("dssu", sessionID, GetState(), GetEntriesCount(), MASTERNODE_REJECTED, strError);
                 return;
             }
@@ -100,7 +100,7 @@ void CDarksendPool::ProcessMessageDarksend(CNode* pfrom, std::string& strCommand
             pfrom->PushMessage("dssu", sessionID, GetState(), GetEntriesCount(), MASTERNODE_ACCEPTED, error);
             return;
         }
-    } else if (strCommand == "dsq") { //Darksend Queue
+    } else if (strCommand == "dsq") { //MojoMix Queue
         TRY_LOCK(cs_darksend, lockRecv);
         if(!lockRecv) return;
 
@@ -149,7 +149,7 @@ void CDarksendPool::ProcessMessageDarksend(CNode* pfrom, std::string& strCommand
             pmn->nLastDsq = mnodeman.nDsqCount;
             pmn->allowFreeTx = true;
 
-            LogPrint("mojomix", "dsq - new Darksend queue object - %s\n", addr.ToString().c_str());
+            LogPrint("mojomix", "dsq - new MojoMix queue object - %s\n", addr.ToString().c_str());
             vecDarksendQueue.push_back(dsq);
             dsq.Relay();
             dsq.time = GetTime();
@@ -240,8 +240,8 @@ void CDarksendPool::ProcessMessageDarksend(CNode* pfrom, std::string& strCommand
             }
 
             if (nValueIn > DARKSEND_POOL_MAX) {
-                LogPrintf("dsi -- more than Darksend pool max! %s\n", tx.ToString().c_str());
-                error = _("Value more than Darksend pool maximum allows.");
+                LogPrintf("dsi -- more than MojoMix pool max! %s\n", tx.ToString().c_str());
+                error = _("Value more than MojoMix pool maximum allows.");
                 pfrom->PushMessage("dssu", sessionID, GetState(), GetEntriesCount(), MASTERNODE_REJECTED, error);
                 return;
             }
@@ -276,7 +276,7 @@ void CDarksendPool::ProcessMessageDarksend(CNode* pfrom, std::string& strCommand
         } else {
             pfrom->PushMessage("dssu", sessionID, GetState(), GetEntriesCount(), MASTERNODE_REJECTED, error);
         }
-    } else if (strCommand == "dssu") { //Darksend status update
+    } else if (strCommand == "dssu") { //MojoMix status update
         if (pfrom->nVersion < MIN_POOL_PEER_PROTO_VERSION) {
             return;
         }
@@ -296,7 +296,7 @@ void CDarksendPool::ProcessMessageDarksend(CNode* pfrom, std::string& strCommand
         LogPrint("mojomix", "dssu - state: %i entriesCount: %i accepted: %i error: %s \n", state, entriesCount, accepted, error.c_str());
 
         if((accepted != 1 && accepted != 0) && sessionID != sessionIDMessage){
-            LogPrintf("dssu - message doesn't match current Darksend session %d %d\n", sessionID, sessionIDMessage);
+            LogPrintf("dssu - message doesn't match current MojoMix session %d %d\n", sessionID, sessionIDMessage);
             return;
         }
 
@@ -324,7 +324,7 @@ void CDarksendPool::ProcessMessageDarksend(CNode* pfrom, std::string& strCommand
         darkSendPool.Check();
             RelayStatus(darkSendPool.sessionID, darkSendPool.GetState(), darkSendPool.GetEntriesCount(), MASTERNODE_RESET);
         }
-    } else if (strCommand == "dsf") { //Darksend Final tx
+    } else if (strCommand == "dsf") { //MojoMix Final tx
         if (pfrom->nVersion < MIN_POOL_PEER_PROTO_VERSION) {
             return;
         }
@@ -342,7 +342,7 @@ void CDarksendPool::ProcessMessageDarksend(CNode* pfrom, std::string& strCommand
         }
         //check to see if input is spent already? (and probably not confirmed)
         SignFinalTransaction(txNew, pfrom);
-    } else if (strCommand == "dsc") { //Darksend Complete
+    } else if (strCommand == "dsc") { //MojoMix Complete
         if (pfrom->nVersion < MIN_POOL_PEER_PROTO_VERSION) {
             return;
         }
@@ -418,7 +418,7 @@ bool CDarksendPool::SetCollateralAddress(std::string strAddress){
 }
 
 //
-// Unlock coins after Darksend fails or succeeds
+// Unlock coins after MojoMix fails or succeeds
 //
 void CDarksendPool::UnlockCoins(){
     while(true) {
@@ -475,7 +475,7 @@ std::string CDarksendPool::GetStatus()
     }
     switch(state) {
         case POOL_STATUS_IDLE:
-            return _("Darksend is idle.");
+            return _("MojoMix is idle.");
         case POOL_STATUS_ACCEPTING_ENTRIES:
             if(entriesCount == 0) {
                 showingDarkSendMessage = 0;
@@ -485,7 +485,7 @@ std::string CDarksendPool::GetStatus()
                     lastEntryAccepted = 0;
                     showingDarkSendMessage = 0;
                 }
-                return _("Darksend request complete:") + " " + _("Your transaction was accepted into the pool!");
+                return _("MojoMix request complete:") + " " + _("Your transaction was accepted into the pool!");
             } else {
                 std::string suffix = "";
                 if(     showingDarkSendMessage % 70 <= 40) return strprintf(_("Submitted following entries to masternode: %u / %d"), entriesCount, GetMaxPoolTransactions());
@@ -505,9 +505,9 @@ std::string CDarksendPool::GetStatus()
         case POOL_STATUS_FINALIZE_TRANSACTION:
             return _("Finalizing transaction.");
         case POOL_STATUS_ERROR:
-            return _("Darksend request incomplete:") + " " + lastMessage + " " + _("Will retry...");
+            return _("MojoMix request incomplete:") + " " + lastMessage + " " + _("Will retry...");
         case POOL_STATUS_SUCCESS:
-            return _("Darksend request complete:") + " " + lastMessage;
+            return _("MojoMix request complete:") + " " + lastMessage;
         case POOL_STATUS_QUEUE:
             if(     showingDarkSendMessage % 70 <= 30) suffix = ".";
             else if(showingDarkSendMessage % 70 <= 50) suffix = "..";
@@ -519,7 +519,7 @@ std::string CDarksendPool::GetStatus()
 }
 
 //
-// Check the Darksend progress and send client updates if a Masternode
+// Check the MojoMix progress and send client updates if a Masternode
 //
 void CDarksendPool::Check()
 {
@@ -662,7 +662,7 @@ void CDarksendPool::CheckFinalTransaction()
 //
 // Charge clients a fee if they're abusive
 //
-// Why bother? Darksend uses collateral to ensure abuse to the process is kept to a minimum.
+// Why bother? MojoMix uses collateral to ensure abuse to the process is kept to a minimum.
 // The submission and signing stages in darksend are completely separate. In the cases where
 // a client submits a transaction then refused to sign, there must be a cost. Otherwise they
 // would be able to do this over and over again and bring the mixing to a hault.
@@ -774,7 +774,7 @@ void CDarksendPool::ChargeFees(){
 }
 
 // charge the collateral randomly
-//  - Darksend is completely free, to pay miners we randomly pay the collateral of users.
+//  - MojoMix is completely free, to pay miners we randomly pay the collateral of users.
 void CDarksendPool::ChargeRandomFees(){
     if(fMasterNode) {
         int i = 0;
@@ -833,7 +833,7 @@ void CDarksendPool::CheckTimeout(){
         }
     }
 
-    // check Darksend queue objects for timeouts
+    // check MojoMix queue objects for timeouts
     int c = 0;
     vector<CDarksendQueue>::iterator it = vecDarksendQueue.begin();
     while(it != vecDarksendQueue.end()){
@@ -1119,12 +1119,12 @@ bool CDarksendPool::SignaturesComplete(){
 void CDarksendPool::SendDarksendDenominate(std::vector<CTxIn>& vin, std::vector<CTxOut>& vout, int64_t amount){
 
     if(fMasterNode) {
-        LogPrintf("CDarksendPool::SendDarksendDenominate() - Darksend from a Masternode is not supported currently.\n");
+        LogPrintf("CDarksendPool::SendDarksendDenominate() - MojoMix from a Masternode is not supported currently.\n");
         return;
     }
 
     if(txCollateral == CTransaction()){
-        LogPrintf ("CDarksendPool:SendDarksendDenominate() - Darksend collateral not set");
+        LogPrintf ("CDarksendPool:SendDarksendDenominate() - MojoMix collateral not set");
         return;
     }
 
@@ -1152,7 +1152,7 @@ void CDarksendPool::SendDarksendDenominate(std::vector<CTxIn>& vin, std::vector<
         SetNull();
         fEnableDarksend = false;
 
-        LogPrintf("CDarksendPool::SendDarksendDenominate() - Not enough disk space, disabling Darksend.\n");
+        LogPrintf("CDarksendPool::SendDarksendDenominate() - Not enough disk space, disabling MojoMix.\n");
         return;
     }
 
@@ -1346,7 +1346,7 @@ void CDarksendPool::NewBlock()
 
 }
 
-// Darksend transaction was completed (failed or successful)
+// MojoMix transaction was completed (failed or successful)
 void CDarksendPool::CompletedTransaction(bool error, int errorID)
 {
     if(fMasterNode) return;
@@ -1376,7 +1376,7 @@ void CDarksendPool::ClearLastMessage()
 }
 
 //
-// Passively run Darksend in the background to anonymize funds based on the given configuration.
+// Passively run MojoMix in the background to anonymize funds based on the given configuration.
 //
 // This does NOT run by default for daemons, only for QT.
 //
@@ -1410,8 +1410,8 @@ bool CDarksendPool::DoAutomaticDenominating(bool fDryRun)
     }
 
     if(pindexBest->nHeight - cachedLastSuccess < minBlockSpacing) {
-        LogPrintf("CDarksendPool::DoAutomaticDenominating - Last successful Darksend action was too recent\n");
-        strAutoDenomResult = _("Last successful Darksend action was too recent.");
+        LogPrintf("CDarksendPool::DoAutomaticDenominating - Last successful MojoMix action was too recent\n");
+        strAutoDenomResult = _("Last successful MojoMix action was too recent.");
         return false;
     }
 
@@ -1671,7 +1671,7 @@ bool CDarksendPool::PrepareDarksendDenominate()
     }
 
     strError = pwalletMain->PrepareDarksendDenominate(0, nDarksendRounds);
-    LogPrintf("DoAutomaticDenominating : Running Darksend denominate for all rounds. Return '%s'\n", strError);
+    LogPrintf("DoAutomaticDenominating : Running MojoMix denominate for all rounds. Return '%s'\n", strError);
     if(strError == "") return true;
 
     // Should never actually get here but just in case
@@ -2073,13 +2073,13 @@ std::string CDarksendPool::GetMessageByID(int messageID) {
     case ERR_INVALID_INPUT: return _("Input is not valid.");
     case ERR_INVALID_SCRIPT: return _("Invalid script detected.");
     case ERR_INVALID_TX: return _("Transaction not valid.");
-    case ERR_MAXIMUM: return _("Value more than Darksend pool maximum allows.");
+    case ERR_MAXIMUM: return _("Value more than MojoMix pool maximum allows.");
     case ERR_MN_LIST: return _("Not in the Masternode list.");
     case ERR_MODE: return _("Incompatible mode.");
     case ERR_NON_STANDARD_PUBKEY: return _("Non-standard public key detected.");
     case ERR_NOT_A_MN: return _("This is not a Masternode.");
     case ERR_QUEUE_FULL: return _("Masternode queue is full.");
-    case ERR_RECENT: return _("Last Darksend was too recent.");
+    case ERR_RECENT: return _("Last MojoMix was too recent.");
     case ERR_SESSION: return _("Session not complete!");
     case ERR_MISSING_TX: return _("Missing input transaction information.");
     case ERR_VERSION: return _("Incompatible version.");
@@ -2260,7 +2260,7 @@ void CDarksendPool::RelayCompletedTransaction(const int sessionID, const bool er
 //TODO: Rename/move to core
 void ThreadCheckDarkSendPool()
 {
-    if(fLiteMode) return; //disable all Darksend/Masternode related functionality
+    if(fLiteMode) return; //disable all MojoMix/Masternode related functionality
 
     // Make this thread recognisable as the wallet flushing thread
     RenameThread("mojocoin-darksend");

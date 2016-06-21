@@ -142,7 +142,7 @@ void OptionsDialog::setMapper()
     mapper->addMapping(ui->minimizeCoinAge, OptionsModel::MinimizeCoinAge);
     mapper->addMapping(ui->useBlackTheme, OptionsModel::UseBlackTheme);
 
-    /* Darksend Rounds */
+    /* MojoMix Rounds */
     mapper->addMapping(ui->darksendRounds, OptionsModel::DarksendRounds);
     mapper->addMapping(ui->anonymizeTransfer, OptionsModel::AnonymizeTransferAmount);
 }

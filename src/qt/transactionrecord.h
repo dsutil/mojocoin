@@ -81,7 +81,7 @@ public:
         DarksendCollateralPayment,
         DarksendMakeCollaterals,
         DarksendCreateDenominations,
-        Darksent
+        MojoMixed
     };
 
     /** Number of confirmation recommended for accepting a transaction */

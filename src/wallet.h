@@ -318,7 +318,7 @@ public:
     std::set< std::set<CTxDestination> > GetAddressGroupings();
     std::map<CTxDestination, int64_t> GetAddressBalances();
 
-    // get the Darksend chain depth for a given input
+    // get the MojoMix chain depth for a given input
     int GetRealInputDarksendRounds(CTxIn in, int rounds) const;
     // respect current settings
     int GetInputDarksendRounds(CTxIn in) const;
@@ -1096,7 +1096,7 @@ public:
         return strprintf("COutput(%s, %d, %d) [%s]", tx->GetHash().ToString(), i, nDepth, FormatMoney(tx->vout[i].nValue));
     }
 
-    //Used with Darksend. Will return fees, then denominations, everything else, then very small inputs that aren't fees
+    //Used with MojoMix. Will return fees, then denominations, everything else, then very small inputs that aren't fees
     int Priority() const
     {
         BOOST_FOREACH(int64_t d, darkSendDenominations)

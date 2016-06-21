@@ -53,7 +53,7 @@ extern std::string strMasterNodePrivKey;
 extern map<uint256, CDarksendBroadcastTx> mapDarksendBroadcastTxes;
 extern CActiveMasternode activeMasternode;
 
-/** Holds an Darksend input
+/** Holds an MojoMix input
  */
 class CTxDSIn : public CTxIn
 {
@@ -72,7 +72,7 @@ public:
     }
 };
 
-/** Holds an Darksend output
+/** Holds an MojoMix output
  */
 class CTxDSOut : public CTxOut
 {
@@ -107,7 +107,7 @@ public:
         amount = 0;
     }
 
-    /// Add entries to use for Darksend
+    /// Add entries to use for MojoMix
     bool Add(const std::vector<CTxIn> vinIn, int64_t amountIn, const CTransaction collateralIn, const std::vector<CTxOut> voutIn)
     {
         if(isSet){return false;}
@@ -150,7 +150,7 @@ public:
 
 
 /**
- * A currently inprogress Darksend merge and denomination information
+ * A currently inprogress MojoMix merge and denomination information
  */
 class CDarksendQueue
 {
@@ -202,7 +202,7 @@ public:
         return false;
     }
 
-    /** Sign this Darksend transaction
+    /** Sign this MojoMix transaction
      *  \return true if all conditions are met:
      *     1) we have an active Masternode,
      *     2) we have a valid Masternode private key,
@@ -213,7 +213,7 @@ public:
 
     bool Relay();
 
-    /// Is this Darksend expired?
+    /// Is this MojoMix expired?
     bool IsExpired()
     {
         return (GetTime() - time) > DARKSEND_QUEUE_TIMEOUT;// 120 seconds
@@ -224,7 +224,7 @@ public:
 
 };
 
-/** Helper class to store Darksend transaction (tx) information.
+/** Helper class to store MojoMix transaction (tx) information.
  */
 class CDarksendBroadcastTx
 {
@@ -250,7 +250,7 @@ public:
     bool VerifyMessage(CPubKey pubkey, std::vector<unsigned char>& vchSig, std::string strMessage, std::string& errorMessage);
 };
 
-/** Used to keep track of current status of Darksend pool
+/** Used to keep track of current status of MojoMix pool
  */
 class CDarksendPool
 {
@@ -325,7 +325,7 @@ public:
 
     CDarksendPool()
     {
-        /* Darksend uses collateral addresses to trust parties entering the pool
+        /* MojoMix uses collateral addresses to trust parties entering the pool
             to behave themselves. If they don't it takes their money. */
 
         cachedLastSuccess = 0;
@@ -338,19 +338,19 @@ public:
         SetNull();
     }
 
-    /** Process a Darksend message using the Darksend protocol
+    /** Process a MojoMix message using the MojoMix protocol
      * \param pfrom
      * \param strCommand lower case command string; valid values are:
      *        Command  | Description
      *        -------- | -----------------
-     *        dsa      | Darksend Acceptable
-     *        dsc      | Darksend Complete
-     *        dsf      | Darksend Final tx
-     *        dsi      | Darksend vIn
-     *        dsq      | Darksend Queue
-     *        dss      | Darksend Signal Final Tx
-     *        dssu     | Darksend status update
-     *        dssub    | Darksend Subscribe To
+     *        dsa      | MojoMix Acceptable
+     *        dsc      | MojoMix Complete
+     *        dsf      | MojoMix Final tx
+     *        dsi      | MojoMix vIn
+     *        dsq      | MojoMix Queue
+     *        dss      | MojoMix Signal Final Tx
+     *        dssu     | MojoMix status update
+     *        dssub    | MojoMix Subscribe To
      * \param vRecv
      */
     void ProcessMessageDarksend(CNode* pfrom, std::string& strCommand, CDataStream& vRecv);
@@ -433,14 +433,14 @@ public:
     /// Is this amount compatible with other client in the pool?
     bool IsCompatibleWithSession(int64_t nAmount, CTransaction txCollateral, std::string& strReason);
 
-    /// Passively run Darksend in the background according to the configuration in settings (only for QT)
+    /// Passively run MojoMix in the background according to the configuration in settings (only for QT)
     bool DoAutomaticDenominating(bool fDryRun=false);
     bool PrepareDarksendDenominate();
 
     /// from masternode-sync.h
     bool IsBlockchainSynced();
 
-    /// Check for process in Darksend
+    /// Check for process in MojoMix
     void Check();
     void CheckFinalTransaction();
     /// Charge fees to bad actors (Charge clients a fee if they're abusive)
@@ -461,7 +461,7 @@ public:
     bool SignaturesComplete();
     /// As a client, send a transaction to a Masternode to start the denomination process
     void SendDarksendDenominate(std::vector<CTxIn>& vin, std::vector<CTxOut>& vout, int64_t amount);
-    /// Get Masternode updates about the progress of Darksend
+    /// Get Masternode updates about the progress of MojoMix
     bool StatusUpdate(int newState, int newEntriesCount, int newAccepted, std::string& error, int newSessionID=0);
 
     /// As a client, check and sign the final transaction
@@ -493,7 +493,7 @@ public:
     std::string GetMessageByID(int messageID);
 
     //
-    // Relay Darksend Messages
+    // Relay MojoMix Messages
     //
 
     void RelayFinalTransaction(const int sessionID, const CTransaction& txNew);
