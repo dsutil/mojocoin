@@ -3764,7 +3764,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
             // Search backward in time from the given txNew timestamp 
             // Search nSearchInterval seconds back up to nMaxStakeSearchInterval
             //uint256 hashProofOfStake = 0, 
-            uint256 targetProofOfStake = 0;
+            //uint256 targetProofOfStake = 0;
             COutPoint prevoutStake = COutPoint(pcoin.first->GetHash(), pcoin.second);
             int64_t nBlockTime;
             if (CheckKernel(pindexPrev, nBits, txNew.nTime - n, prevoutStake, &nBlockTime))
@@ -3876,7 +3876,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         if (!txNew.GetCoinAge(txdb, pindexPrev, nCoinAge))
             return error("CreateCoinStake : failed to calculate coin age");
 
-        nReward = GetProofOfStakeReward(pindexPrev, nCoinAge, nFees);
+        nReward = GetProofOfStakeReward(pindexPrev, nCoinAge, nFees, txNew.GetValueOut());
         if (nReward <= 0)
             return false;
 
