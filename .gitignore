@@ -1,0 +1,12 @@
+build
+Makefile.Release
+Makefile.Debug
+Makefile
+object_script.transfer-qt.Debug
+object_script.transfer-qt.Release
+dojocoin.pro.user
+dojocoin-qt_plugin_import.cpp
+src/qt/locale/*.qm
+release
+*.user
+*.3.2-pre1
