@@ -9,7 +9,7 @@
 #include "clientversion.h"
 
 //
-// Bootup the masternode, look for a 500 MOJO input and register on the network
+// Bootup the masternode, look for a 200000 MOJO input and register on the network
 //
 void CActiveMasternode::ManageStatus()
 {
