@@ -20,7 +20,7 @@ RPC Port: 22254
 
 BUILD LINUX
 -----------
-1) git clone https://github.com/stormbitz/Mojocoin.git mojocoin
+1) git clone https://github.com/MojocoinV2/mojocoin.git mojocoin
 
 2) cd mojocoin/src
 
