@@ -761,7 +761,7 @@ bool AppInit2(boost::thread_group& threadGroup)
     fNoListen = !GetBoolArg("-listen", true);
     fDiscover = GetBoolArg("-discover", true);
     fNameLookup = GetBoolArg("-dns", true);
-    fDarkEnabled = GetBoolArg("-tor", true);
+    fDarkEnabled = GetBoolArg("-tor", false);
     bool fBound = false;
     if (!fNoListen)
     {
