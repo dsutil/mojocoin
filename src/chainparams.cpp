@@ -123,6 +123,9 @@ CBlock(hash=00000e2a6ca677f8c25d4905494710eeace49efb85d0fbf45c4233c5116a13cb, ve
         vSeeds.push_back(CDNSSeedData("mojonode01.mojocoin.org",  "mojonode01.mojocoin.org"));
         vSeeds.push_back(CDNSSeedData("mojonode02.mojocoin.org",  "mojonode02.mojocoin.org"));
         vSeeds.push_back(CDNSSeedData("mojonode03.mojocoin.org",  "mojonode03.mojocoin.org"));
+        vSeeds.push_back(CDNSSeedData("mojonode04.mojocoin.org",  "mojonode04.mojocoin.org"));
+        vSeeds.push_back(CDNSSeedData("mojonode05.mojocoin.org",  "mojonode05.mojocoin.org"));
+        vSeeds.push_back(CDNSSeedData("mojonode06.mojocoin.org",  "mojonode06.mojocoin.org"));
         convertSeeds(vFixedSeeds, pnSeed, ARRAYLEN(pnSeed), nDefaultPort);
 
         nPoolMaxTransactions = 3;
