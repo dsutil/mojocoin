@@ -20,7 +20,7 @@ RPC Port: 22254
 
 BUILD LINUX
 -----------
-1) git clone https://github.com/stormbitz/Mojocoin.git mojocoin
+1) git clone https://github.com/MojocoinV2/mojocoin.git mojocoin
 
 2) cd mojocoin/src
 
@@ -40,7 +40,7 @@ BUILD WINDOWS
 
 1) Download Windows Build Environment.rar from https://github.com/Infernoman/Transfercoin/releases/tag/WBE and unpack to C:/
 
-2) Download Mojocoin source https://github.com/stormbitz/Mojocoin/archive/master.zip 
+2) Download Mojocoin source https://github.com/MojocoinV2/mojocoin/archive/master.zip 
 
 2.1) Unpack to C:/Mojocoin
 
