@@ -3,7 +3,7 @@ DEFINES += FN1 FN2
 FN1 = mojocoin
 win32:FN2 = -qt-win-v
 macx:FN2 = -qt-osx-v
-VERSION = 2.1.0.0
+VERSION = 2.2.0.0
 TARGET = $$FN1$$FN2$$VERSION
 INCLUDEPATH += src src/json src/qt src/qt/plugins/mrichtexteditor src/tor 
 QT += network printsupport core gui
@@ -19,31 +19,87 @@ greaterThan(QT_MAJOR_VERSION, 4) {
     QT += widgets
     DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0
 }
+##############################################
+# 
+# cp libglib-2.0-0.dll intl.dll
+# Guide by Limx.dev - Christian Knoepke
+# https://bitcointalk.org/index.php?topic=149479.0
+# Compielier unter Mysys Shell
+# cd /C/Limecoinx-master/src/leveldb
+# TARGET_OS=NATIVE_WINDOWS make libleveldb.a libmemenv.a
+# src\secp256k1
+#libsecp256k1 is built using autotools:
+#
+#    $ c
+#      ./autogen.sh
+#    Mit CPPFALG
+#    $ ./configure
+#   --enable-module-recovery
+#    $ make
+#    $ ./tests
+#    $ sudo make install  # optional
+#
+# Dos Shell
+# set PATH=%PATH%;C:\Qt\5.3.2\bin
+# qmake "USE_QRCODE=1" "USE_UPNP=-" "USE_IPV6=1" mojocoin.pro
+# mingw32-make -j -f Makefile.Release
+# mingw32-make -f Makefile.Release
+##############################################
 
 win32 {
-    LIBS += -lshlwapi
-    LIBS += $$join(BOOST_LIB_PATH,,-L,) $$join(BDB_LIB_PATH,,-L,) $$join(OPENSSL_LIB_PATH,,-L,) $$join(QRENCODE_LIB_PATH,,-L,)
-    LIBS += -lssl -lcrypto -ldb_cxx$$BDB_LIB_SUFFIX -lcrypt32
-    LIBS += -lws2_32 -lole32 -loleaut32 -luuid -lgdi32
-    LIBS += -lboost_system-mgw49-mt-s-1_57 -lboost_filesystem-mgw49-mt-s-1_57 -lboost_program_options-mgw49-mt-s-1_57 -lboost_thread-mgw49-mt-s-1_57
-    LIBS += -L"C:/deps/MinGW/msys/1.0/local/lib"
-    LIBS += -L"C:/deps/libcommuni-3.2.0/lib"
+windows:LIBS += -lshlwapi
+LIBS += $$join(BOOST_LIB_PATH,,-L,) $$join(BDB_LIB_PATH,,-L,) $$join(OPENSSL_LIB_PATH,,-L,) $$join(QRENCODE_LIB_PATH,,-L,)
+LIBS += -lssl -lcrypto -ldb_cxx$$BDB_LIB_SUFFIX
+windows:LIBS += -lws2_32 -lole32 -loleaut32 -luuid -lgdi32
+LIBS += -lboost_system-mgw49-mt-s-1_55 -lboost_filesystem-mgw49-mt-s-1_55 -lboost_program_options-mgw49-mt-s-1_55 -lboost_thread-mgw49-mt-s-1_55
+LIBS += -L"C:/MinGW/msys/1.0/local/lib"
+LIBS += -L"C:/deps/libcommuni-3.2.0/lib"
+LIBS += -L"C:/deps/ibevent-2.0.22/.lib"
 
-    INCLUDEPATH += "C:/deps/MinGW/msys/1.0/local/include"
+INCLUDEPATH += "C:/MinGW/msys/1.0/local/include"
 
-    BOOST_LIB_SUFFIX=-mgw49-mt-s-1_57
-    BOOST_INCLUDE_PATH=C:/deps/boost_1_57_0
-    BOOST_LIB_PATH=C:/deps/boost_1_57_0/stage/lib
-    BDB_INCLUDE_PATH=C:/deps/db-4.8.30.NC/build_unix
-    BDB_LIB_PATH=C:/deps/db-4.8.30.NC/build_unix
-    OPENSSL_INCLUDE_PATH=C:/deps/openssl-1.0.2a/include
-    OPENSSL_LIB_PATH=C:/deps/openssl-1.0.2a
-    MINIUPNPC_INCLUDE_PATH=C:/deps/
-    MINIUPNPC_LIB_PATH=C:/deps/miniupnpc
-    QRENCODE_INCLUDE_PATH=C:/deps/qrencode-3.4.3
-    QRENCODE_LIB_PATH=C:/deps/qrencode-3.4.3/.libs
-
+BOOST_LIB_SUFFIX=-mgw49-mt-s-1_55
+BOOST_INCLUDE_PATH=C:/deps/boost_1_55_0
+BOOST_LIB_PATH=C:/deps/boost_1_55_0/stage/lib
+BDB_INCLUDE_PATH=C:/deps/db-4.8.30.NC/build_unix
+BDB_LIB_PATH=C:/deps/db-4.8.30.NC/build_unix
+OPENSSL_INCLUDE_PATH=C:/deps/openssl-1.0.1j/include
+OPENSSL_LIB_PATH=C:/deps/openssl-1.0.1j
+MINIUPNPC_INCLUDE_PATH=C:/deps/
+MINIUPNPC_LIB_PATH=C:/deps/miniupnpc
+LIBPNG_INCLUDE_PATH=d:/deps/libpng-1.6.12
+LIBPNG_LIB_PATH=d:/deps/libpng-1.6.12/.libs
+QRENCODE_INCLUDE_PATH=C:/deps/qrencode-3.4.4
+QRENCODE_LIB_PATH=C:/deps/qrencode-3.4.4/.libs
+GMP_INCLUDE_PATH= C:/deps/gmp-6.0.0
+GMP_LIB_PATH= C:/deps/gmp-6.0.0/.libs
 }
+
+
+#win32 {
+#    LIBS += -lshlwapi
+#    LIBS += $$join(BOOST_LIB_PATH,,-L,) $$join(BDB_LIB_PATH,,-L,) $$join(OPENSSL_LIB_PATH,,-L,) $$join(QRENCODE_LIB_PATH,,-L,)
+#    LIBS += -lssl -lcrypto -ldb_cxx$$BDB_LIB_SUFFIX -lcrypt32
+#    LIBS += -lws2_32 -lole32 -loleaut32 -luuid -lgdi32
+#    LIBS += -lboost_system-mgw49-mt-s-1_57 -lboost_filesystem-mgw49-mt-s-1_57 -lboost_program_options-mgw49-mt-s-1_57 -lboost_thread-mgw49-mt-s-1_57
+#    LIBS += -L"C:/deps/MinGW/msys/1.0/local/lib"
+#    LIBS += -L"C:/deps/libcommuni-3.2.0/lib"
+#
+#  INCLUDEPATH += "C:/deps/MinGW/msys/1.0/local/include"
+#
+#    BOOST_LIB_SUFFIX=-mgw49-mt-s-1_57
+#    BOOST_INCLUDE_PATH=C:/deps/boost_1_57_0
+#    BOOST_LIB_PATH=C:/deps/boost_1_57_0/stage/lib
+#    BDB_INCLUDE_PATH=C:/deps/db-4.8.30.NC/build_unix
+#    BDB_LIB_PATH=C:/deps/db-4.8.30.NC/build_unix
+#    OPENSSL_INCLUDE_PATH=C:/deps/openssl-1.0.2a/include
+#    OPENSSL_LIB_PATH=C:/deps/openssl-1.0.2a
+#    MINIUPNPC_INCLUDE_PATH=C:/deps/
+#    MINIUPNPC_LIB_PATH=C:/deps/miniupnpc
+#    QRENCODE_INCLUDE_PATH=C:/deps/qrencode-3.4.3
+#    QRENCODE_LIB_PATH=C:/deps/qrencode-3.4.3/.libs
+#
+#}
 
 # for boost 1.37, add -mt to the boost libraries
 # use: qmake BOOST_LIB_SUFFIX=-mt

@@ -298,7 +298,10 @@ bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, unsigned 
         return error("CheckStakeKernelHash() : nTime violation");
 
     if (nTimeBlockFrom + nStakeMinAge > nTimeTx) // Min age requirement
+	{
+		LogPrintf("BSDDev Min age violation : nTimeBlockFrom + nStakeMinAge)- nTimeTx =%u \n",(nTimeBlockFrom + nStakeMinAge)- nTimeTx);
         return error("CheckStakeKernelHash() : min age violation");
+	}
 
     // Base target
     CBigNum bnTarget;

@@ -237,6 +237,14 @@ namespace {
         bool operator()(const CStealthAddress &stxAddr) const { return false; }
     };
 };
+/** base58-encoded Bitcoin addresses.
+ * Public-key-hash-addresses have version 0 (or 111 testnet).
+ * The data vector contains RIPEMD160(SHA256(pubkey)), where pubkey is the serialized public key.
+ * Script-hash-addresses have version 5 (or 196 testnet).
+ * The data vector contains RIPEMD160(SHA256(cscript)), where cscript is the serialized redemption script.
+ */
+CChainParams::Base58Type pubkey_address = (CChainParams::Base58Type)0;
+CChainParams::Base58Type script_address = (CChainParams::Base58Type)5;
 
 bool CBitcoinAddress::Set(const CKeyID &id) {
     SetData(Params().Base58Prefix(CChainParams::PUBKEY_ADDRESS), &id, 20);

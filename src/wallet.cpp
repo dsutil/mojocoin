@@ -593,30 +593,6 @@ int64_t CWallet::IncOrderPosNext(CWalletDB *pwalletdb)
     return nRet;
 }
 
-CWallet::TxItems CWallet::OrderedTxItems(std::list<CAccountingEntry>& acentries, std::string strAccount)
-{
-    AssertLockHeld(cs_wallet); // mapWallet
-    CWalletDB walletdb(strWalletFile);
-
-    // First: get all CWalletTx and CAccountingEntry into a sorted-by-order multimap.
-    TxItems txOrdered;
-
-    // Note: maintaining indices in the database of (account,time) --> txid and (account, time) --> acentry
-    // would make this much faster for applications that do this a lot.
-    for (map<uint256, CWalletTx>::iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
-    {
-        CWalletTx* wtx = &((*it).second);
-        txOrdered.insert(make_pair(wtx->nOrderPos, TxPair(wtx, (CAccountingEntry*)0)));
-    }
-    acentries.clear();
-    walletdb.ListAccountCreditDebit(strAccount, acentries);
-    BOOST_FOREACH(CAccountingEntry& entry, acentries)
-    {
-        txOrdered.insert(make_pair(entry.nOrderPos, TxPair((CWalletTx*)0, &entry)));
-    }
-
-    return txOrdered;
-}
 
 void CWallet::MarkDirty()
 {
@@ -633,6 +609,9 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFromLoadWallet)
     if (fFromLoadWallet)
     {
         mapWallet[hash] = wtxIn;
+		CWalletTx& wtx = mapWallet[hash];
+		wtx.BindWallet(this);
+        wtxOrdered.insert(make_pair(wtx.nOrderPos, TxPair(&wtx, (CAccountingEntry*)0)));
         mapWallet[hash].BindWallet(this);
         AddToSpends(hash);
     }
@@ -648,7 +627,8 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFromLoadWallet)
         {
             wtx.nTimeReceived = GetAdjustedTime();
             wtx.nOrderPos = IncOrderPosNext();
-
+			wtxOrdered.insert(make_pair(wtx.nOrderPos, TxPair(&wtx, (CAccountingEntry*)0)));
+			
             wtx.nTimeSmart = wtx.nTimeReceived;
             if (wtxIn.hashBlock != 0)
             {
@@ -659,9 +639,9 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFromLoadWallet)
                     {
                         // Tolerate times up to the last timestamp in the wallet not more than 5 minutes into the future
                         int64_t latestTolerated = latestNow + 300;
-                        std::list<CAccountingEntry> acentries;
-                        TxItems txOrdered = OrderedTxItems(acentries);
-                        for (TxItems::reverse_iterator it = txOrdered.rbegin(); it != txOrdered.rend(); ++it)
+                        const TxItems & txOrdered = wtxOrdered;
+						
+                        for (TxItems::const_reverse_iterator it = txOrdered.rbegin(); it != txOrdered.rend(); ++it)
                         {
                             CWalletTx *const pwtx = (*it).second.first;
                             if (pwtx == &wtx)
@@ -1589,7 +1569,7 @@ CAmount CWallet::GetWatchOnlyBalance() const
 {
     CAmount nTotal = 0;
     {
-        LOCK(cs_wallet);
+        LOCK2(cs_main, cs_wallet);
         for (map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
         {
             const CWalletTx* pcoin = &(*it).second;
@@ -1618,7 +1598,7 @@ CAmount CWallet::GetUnconfirmedWatchOnlyBalance() const
 {
     CAmount nTotal = 0;
     {
-        LOCK(cs_wallet);
+        LOCK2(cs_main, cs_wallet);
         for (map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
         {
             const CWalletTx* pcoin = &(*it).second;
@@ -1633,7 +1613,7 @@ CAmount CWallet::GetImmatureWatchOnlyBalance() const
 {
     CAmount nTotal = 0;
     {
-        LOCK(cs_wallet);
+        LOCK2(cs_main, cs_wallet);
         for (map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
         {
             const CWalletTx* pcoin = &(*it).second;
@@ -4221,6 +4201,19 @@ bool CWallet::CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey, std:
     return true;
 }
 
+bool CWallet::AddAccountingEntry(const CAccountingEntry& acentry, CWalletDB & pwalletdb)
+{
+    if (!pwalletdb.WriteAccountingEntry_Backend(acentry))
+        return false;
+ 
+ 
+    laccentries.push_back(acentry);
+    CAccountingEntry & entry = laccentries.back();
+    wtxOrdered.insert(make_pair(entry.nOrderPos, TxPair((CWalletTx*)0, &entry)));
+ 
+ 
+    return true;
+}
 
 
 

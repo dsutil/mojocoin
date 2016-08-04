@@ -1668,6 +1668,7 @@ bool CTransaction::ConnectInputs(CTxDB& txdb, MapPrevTx inputs, map<uint256, CTx
             // for an attacker to attempt to split the network.
             if (!txindex.vSpent[prevout.n].IsNull())
                 return fMiner ? false : error("ConnectInputs() : %s prev tx already used at %s", GetHash().ToString(), txindex.vSpent[prevout.n].ToString());
+			//return strprintf("(nFile=%u, nBlockPos=%u, nTxPos=%u)", nFile, nBlockPos, nTxPos);
 
        if(fValidateSig)
        {
@@ -2302,6 +2303,13 @@ bool CTransaction::GetCoinAge(CTxDB& txdb, const CBlockIndex* pindexPrev, uint64
             return false; // unable to read block of previous transaction
         if (block.GetBlockTime() + nStakeMinAge > nTime)
             continue; // only count coins meeting min age requirement
+		//BitSendDev 08-02-2016
+		/*
+		if (block.GetBlockTime() + nStakeMinAge < nTime)
+			           // return false;
+				   */
+		
+LogPrintf("BSDDev Mblock.GetBlockTime() + nStakeMinAge- nTime=%u \n block.GetBlockTime()=%u nStakeMinAge=%u nTime=%u \n",block.GetBlockTime() + nStakeMinAge- nTime,block.GetBlockTime(),nStakeMinAge,nTime);
 
         int64_t nValueIn = txPrev.vout[txin.prevout.n].nValue;
         bnCentSecond += CBigNum(nValueIn) * (nTime-txPrev.nTime) / CENT;
@@ -3878,10 +3886,21 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         CTxIn vin;
         vector<unsigned char> vchSig;
         int64_t sigTime;
+        CInv inv;
+        CTxDB txdb("r");
 
         if(strCommand == "tx") {
+            CInv inv(MSG_TX, tx.GetHash());
+            // Check for recently rejected (and do other quick existence checks)
+            if (AlreadyHave(txdb, inv))
+                return true;
+
             vRecv >> tx;
         } else if (strCommand == "dstx") {
+            CInv inv(MSG_DSTX, tx.GetHash());
+            // Check for recently rejected (and do other quick existence checks)
+            if (AlreadyHave(txdb, inv))
+                return true;
             //these allow masternodes to publish a limited amount of free transactions
             vRecv >> tx >> vin >> vchSig >> sigTime;
 
@@ -3899,7 +3918,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
                 std::string errorMessage = "";
                 if(!darkSendSigner.VerifyMessage(pmn->pubkey2, vchSig, strMessage, errorMessage)){
                     LogPrintf("dstx: Got bad masternode address signature %s \n", vin.ToString().c_str());
-                    //pfrom->Misbehaving(20);
+                    //Misbehaving(pfrom->GetId(), 20);
                     return false;
                 }
 
@@ -3920,7 +3939,6 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             }
         }
 
-        CInv inv(MSG_TX, tx.GetHash());
         pfrom->AddInventoryKnown(inv);
 
         LOCK(cs_main);
@@ -3933,7 +3951,6 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         {
             RelayTransaction(tx, inv.hash);
             vWorkQueue.push_back(inv.hash);
-            vEraseQueue.push_back(inv.hash);
 
             // Recursively process any orphan transactions that depended on this one
             for (unsigned int i = 0; i < vWorkQueue.size(); i++)
@@ -3958,7 +3975,8 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
                     }
                     else if (!fMissingInputs2)
                     {
-                        // invalid or too-little-fee orphan
+                        // Has inputs but not accepted to mempool
+                        // Probably non-standard or insufficient fee/priority
                         vEraseQueue.push_back(orphanTxHash);
                         LogPrint("mempool", "   removed orphan tx %s\n", orphanTxHash.ToString());
                     }
@@ -3977,12 +3995,12 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             if (nEvicted > 0)
                 LogPrint("mempool", "mapOrphan overflow, removed %u tx\n", nEvicted);
         }
-        if(strCommand == "dstx"){			
-	        CInv inv(MSG_DSTX, tx.GetHash());			
-	        RelayInventory(inv);			
-	    }
-        if (tx.nDoS) pfrom->Misbehaving(tx.nDoS);
-    }
+        if(strCommand == "dstx"){
+            CInv inv(MSG_DSTX, tx.GetHash());
+            RelayInventory(inv);
+        }
+        if (tx.nDoS) Misbehaving(pfrom->GetId(), tx.nDoS);
+}
 
 
     else if (strCommand == "block" && !fImporting && !fReindex) // Ignore blocks received while importing
