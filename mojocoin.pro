@@ -5,7 +5,7 @@ win32:FN2 = -qt-win-v
 macx:FN2 = -qt-osx-v
 VERSION = 2.2.0.0
 TARGET = $$FN1$$FN2$$VERSION
-INCLUDEPATH += src src/json src/qt src/qt/plugins/mrichtexteditor src/tor 
+INCLUDEPATH += src src/json src/qt src/qt/plugins/mrichtexteditor src/tor
 QT += network printsupport core gui
 DEFINES += ENABLE_WALLET
 DEFINES += BOOST_THREAD_USE_LIB BOOST_SPIRIT_THREADSAFE
@@ -19,32 +19,6 @@ greaterThan(QT_MAJOR_VERSION, 4) {
     QT += widgets
     DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0
 }
-##############################################
-# 
-# cp libglib-2.0-0.dll intl.dll
-# Guide by Limx.dev - Christian Knoepke
-# https://bitcointalk.org/index.php?topic=149479.0
-# Compielier unter Mysys Shell
-# cd /C/Limecoinx-master/src/leveldb
-# TARGET_OS=NATIVE_WINDOWS make libleveldb.a libmemenv.a
-# src\secp256k1
-#libsecp256k1 is built using autotools:
-#
-#    $ c
-#      ./autogen.sh
-#    Mit CPPFALG
-#    $ ./configure
-#   --enable-module-recovery
-#    $ make
-#    $ ./tests
-#    $ sudo make install  # optional
-#
-# Dos Shell
-# set PATH=%PATH%;C:\Qt\5.3.2\bin
-# qmake "USE_QRCODE=1" "USE_UPNP=-" "USE_IPV6=1" mojocoin.pro
-# mingw32-make -j -f Makefile.Release
-# mingw32-make -f Makefile.Release
-##############################################
 
 win32 {
 windows:LIBS += -lshlwapi
