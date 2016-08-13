@@ -23,6 +23,8 @@ class CValidationState;
 
 static const int64_t DARKSEND_COLLATERAL = (0.01*COIN);
 static const int64_t DARKSEND_POOL_MAX = (199999.99*COIN);
+static const int DAYBLOCK = 1600; 
+static const int FORK_HEIGHT_1 = 84000; 
 
 static const int64_t STATIC_POS_REWARD = 1 * COIN; //Constant reward of 1 MOJO per COIN i.e. 8%
 static const int64_t TARGET_SPACING = 60;

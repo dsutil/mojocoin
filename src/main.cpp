@@ -1302,6 +1302,9 @@ int64_t GetProofOfWorkReward(int nHeight, int64_t nFees)
         if (nHeight == 1) {
             return  105099436 * COIN;
         }
+		else if (nHeight >= FORK_HEIGHT_1){
+            nSubsidy = 5 * COIN;
+        }
         else if (nHeight >= 28900){
             nSubsidy = 20 * COIN;
         }
@@ -1317,6 +1320,9 @@ int64_t GetProofOfWorkReward(int nHeight, int64_t nFees)
 int64_t GetProofOfStakeReward(const CBlockIndex* pindexPrev, int64_t nCoinAge, int64_t nFees, int64_t nValueOut = 0)
 {
    int64_t nRewardCoinYear = 1 * CENT;
+   
+   if(pindexPrev->nHeight <= FORK_HEIGHT_1)
+   {
    if (nValueOut > DARKSEND_POOL_MAX)
    {
         nRewardCoinYear = 15 * CENT;    
@@ -1331,6 +1337,33 @@ int64_t GetProofOfStakeReward(const CBlockIndex* pindexPrev, int64_t nCoinAge, i
 
     int64_t nSubsidy = nCoinAge * nRewardCoinYear / 365 / COIN;
     return nSubsidy + nFees;
+   }else
+   {
+	   if(pindexPrev->nHeight <= FORK_HEIGHT_1+(DAYBLOCK*365*1))
+	   {
+		   nRewardCoinYear = 20 * CENT;  
+		   //Year1: 20% annually
+	   }
+	   else if(pindexPrev->nHeight <= FORK_HEIGHT_1+(DAYBLOCK*365*2))
+	   {
+		   nRewardCoinYear = 15 * CENT;  
+		   //Year2: 15% annually
+	   }
+	     else if(pindexPrev->nHeight <= FORK_HEIGHT_1+(DAYBLOCK*365*3))
+	   {
+		   nRewardCoinYear = 10 * CENT;  
+		   //year3: 10% annually
+	   }
+	     else
+	   {
+		   nRewardCoinYear = 5 * CENT;  
+		   //year4 onwards: 5% annually
+	   }
+	   //POS FIX
+		int64_t nSubsidy = nCoinAge / 365 / COIN;
+		nSubsidy = nSubsidy * nRewardCoinYear;
+		return nSubsidy + nFees; 
+   }
 }
 
 static const int64_t nTargetTimespan = 1 * 15 * 60;
@@ -4505,7 +4538,9 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
 
 int64_t GetMasternodePayment(int nHeight, int64_t blockValue)
 {
+	//BitSendDev 08-13-2016
     int64_t ret = blockValue * 1/2; //50%
-
+	if(nHeight >FORK_HEIGHT_1+(DAYBLOCK*365*1)) ret += blockValue / 10;  //60%
+	if(nHeight >FORK_HEIGHT_1+(DAYBLOCK*365*2)) ret += blockValue / 10;  //70%
     return ret;
 }
