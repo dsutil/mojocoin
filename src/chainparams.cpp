@@ -119,7 +119,13 @@ CBlock(hash=00000e2a6ca677f8c25d4905494710eeace49efb85d0fbf45c4233c5116a13cb, ve
         base58Prefixes[STEALTH_ADDRESS] = list_of(40);
         base58Prefixes[EXT_PUBLIC_KEY] = list_of(0x04)(0x88)(0xB2)(0x1E);
         base58Prefixes[EXT_SECRET_KEY] = list_of(0x04)(0x88)(0xAD)(0xE4);
-
+		
+		vSeeds.push_back(CDNSSeedData("85.214.68.75",  "85.214.68.75"));
+		vSeeds.push_back(CDNSSeedData("104.237.2.192",  "104.237.2.192"));
+		vSeeds.push_back(CDNSSeedData("73.130.81.250",  "73.130.81.250"));
+		vSeeds.push_back(CDNSSeedData("79.146.239.10",  "79.146.239.10"));
+		vSeeds.push_back(CDNSSeedData("84.200.32.238",  "84.200.32.238"));
+		vSeeds.push_back(CDNSSeedData("92.222.87.172",  "92.222.87.172"));
         vSeeds.push_back(CDNSSeedData("mojonode01.mojocoin.org",  "mojonode01.mojocoin.org"));
         vSeeds.push_back(CDNSSeedData("mojonode02.mojocoin.org",  "mojonode02.mojocoin.org"));
         vSeeds.push_back(CDNSSeedData("mojonode03.mojocoin.org",  "mojonode03.mojocoin.org"));
@@ -132,7 +138,7 @@ CBlock(hash=00000e2a6ca677f8c25d4905494710eeace49efb85d0fbf45c4233c5116a13cb, ve
         //strSporkKey = "046f78dcf911fbd61910136f7f0f8d90578f68d0b3ac973b5040fb7afb501b5939f39b108b0569dca71488f5bbf498d92e4d1194f6f941307ffd95f75e76869f0e";
         //strMasternodePaymentsPubKey = "046f78dcf911fbd61910136f7f0f8d90578f68d0b3ac973b5040fb7afb501b5939f39b108b0569dca71488f5bbf498d92e4d1194f6f941307ffd95f75e76869f0e";
         strDarksendPoolDummyAddress = "M8rBDGDe2PEhw8FCMsFAkbiUKFGDKgkELt";
-        nLastPOWBlock = 1025280;
+        nLastPOWBlock = 200000;
         nPOSStartBlock = 0;
     }
 

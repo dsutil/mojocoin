@@ -1392,6 +1392,8 @@ static unsigned int GetNextTargetRequired_(const CBlockIndex* pindexLast, bool f
 
     int64_t nActualSpacing = pindexPrev->GetBlockTime() - pindexPrevPrev->GetBlockTime();
     
+	 if(pindexBest->nHeight <= FORK_HEIGHT_2){
+	
     // Normalize atypical values
     if (nActualSpacing < 1)
         nActualSpacing = 1;
@@ -1410,6 +1412,28 @@ static unsigned int GetNextTargetRequired_(const CBlockIndex* pindexLast, bool f
         bnNew = bnTargetLimit;
 
     return bnNew.GetCompact();
+	}
+	else
+	{
+	if (nActualSpacing < 1)
+        nActualSpacing = 1;
+    if (nActualSpacing > TARGET_SPACING_2 * 3)
+        nActualSpacing = TARGET_SPACING_2 * 3;
+
+    // ppcoin: target change every block
+    // ppcoin: retarget with exponential moving toward target spacing
+    CBigNum bnNew;
+    bnNew.SetCompact(pindexPrev->nBits);
+    int64_t nInterval = nTargetTimespan / TARGET_SPACING_2;
+    bnNew *= ((nInterval - 1) * TARGET_SPACING_2 + nActualSpacing + nActualSpacing);
+    bnNew /= ((nInterval + 1) * TARGET_SPACING_2);
+
+    if (bnNew <= 0 || bnNew > bnTargetLimit)
+        bnNew = bnTargetLimit;
+
+    return bnNew.GetCompact();	
+		
+	}
 }
 
 unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfStake)

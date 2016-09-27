@@ -271,6 +271,8 @@ std::string HelpMessage()
     strUsage += "  -keypool=<n>           " + _("Set key pool size to <n> (default: 1000) (litemode: 100)") + "\n";
     strUsage += "  -rescan                " + _("Rescan the block chain for missing wallet transactions") + "\n";
     strUsage += "  -salvagewallet         " + _("Attempt to recover private keys from a corrupt wallet.dat") + "\n";
+	strUsage += "  -zapwallettxes=<mode>  " + _("Delete all wallet transactions and only recover those parts of the blockchain through -rescan on startup") + "\n";
+	strUsage += "\n" + _("(default: 1, 1 = keep tx meta data e.g. account owner and payment request information, 2 = drop tx meta data)") + "\n";
     strUsage += "  -checkblocks=<n>       " + _("How many blocks to check at startup (default: 500, 0 = all)") + "\n";
     strUsage += "  -checklevel=<n>        " + _("How thorough the block verification is (0-6, default: 1)") + "\n";
     strUsage += "  -loadblock=<file>      " + _("Imports blocks from external blk000?.dat file") + "\n";
@@ -446,6 +448,10 @@ bool AppInit2(boost::thread_group& threadGroup)
             LogPrintf("AppInit2 : parameter interaction: -salvagewallet=1 -> setting -rescan=1\n");
     }
 
+	if (GetBoolArg("-zapwallettxes", false)) {
+        if (SoftSetBoolArg("-rescan", true))
+            printf("AppInit2 : parameter interaction: -zapwallettxes=<mode> -> setting -rescan=1\n");
+	}
     // ********************************************************* Step 3: parameter-to-internal-flags
 
     fDebug = !mapMultiArgs["-debug"].empty();
@@ -902,6 +908,24 @@ bool AppInit2(boost::thread_group& threadGroup)
         pwalletMain = NULL;
         LogPrintf("Wallet disabled!\n");
     } else {
+
+	/////////Zap BitsendDev  13-07-2017
+     std::vector<CWalletTx> vWtx;
+
+	if (GetBoolArg("-zapwallettxes", false)) {
+	   uiInterface.InitMessage(_("Zapping all transactions from wallet..."));
+
+	   pwalletMain = new CWallet("wallet.dat");
+	   DBErrors nZapWalletRet = pwalletMain->ZapWalletTx(vWtx);
+	   if (nZapWalletRet != DB_LOAD_OK) {
+		   uiInterface.InitMessage(_("Error loading wallet.dat: Wallet corrupted"));
+		   return false;
+	   }
+
+	   delete pwalletMain;
+	   pwalletMain = NULL;
+	} 
+/////////Zap BitsendDev
         uiInterface.InitMessage(_("Loading wallet..."));
 
         nStart = GetTimeMillis();
@@ -985,6 +1009,28 @@ bool AppInit2(boost::thread_group& threadGroup)
             nStart = GetTimeMillis();
             pwalletMain->ScanForWalletTransactions(pindexRescan, true);
             LogPrintf(" rescan      %15dms\n", GetTimeMillis() - nStart);
+			if (GetBoolArg("-zapwallettxes", false) && GetArg("-zapwallettxes", "1") != "2")							
+		 {					
+			 BOOST_FOREACH(const CWalletTx& wtxOld, vWtx)				
+			 {				
+				 uint256 hash = wtxOld.GetHash();			
+				 std::map<uint256, CWalletTx>::iterator mi = pwalletMain->mapWallet.find(hash);			
+				 if (mi != pwalletMain->mapWallet.end())			
+				 {			
+					 const CWalletTx* copyFrom = &wtxOld;		
+					 CWalletTx* copyTo = &mi->second;		
+					 copyTo->mapValue = copyFrom->mapValue;		
+					 copyTo->vOrderForm = copyFrom->vOrderForm;		
+					 copyTo->nTimeReceived = copyFrom->nTimeReceived;		
+					 copyTo->nTimeSmart = copyFrom->nTimeSmart;		
+					 copyTo->fFromMe = copyFrom->fFromMe;		
+					 copyTo->strFromAccount = copyFrom->strFromAccount;		
+					 copyTo->nOrderPos = copyFrom->nOrderPos;		
+					 copyTo->WriteToDisk();		
+				 }			
+			 }	
+		 }			 
+
             pwalletMain->SetBestChain(CBlockLocator(pindexBest));
             nWalletDBUpdated++;
         }
