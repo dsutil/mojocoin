@@ -1367,7 +1367,7 @@ int64_t GetProofOfStakeReward(const CBlockIndex* pindexPrev, int64_t nCoinAge, i
 }
 
 static const int64_t nTargetTimespan = 1 * 15 * 60;
-
+static const int64_t nTargetTimespan2 = 24 * 60 * 60;  //one day
 // ppcoin: find last block index up to pindex
 const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfStake)
 {
@@ -1424,7 +1424,13 @@ static unsigned int GetNextTargetRequired_(const CBlockIndex* pindexLast, bool f
     // ppcoin: retarget with exponential moving toward target spacing
     CBigNum bnNew;
     bnNew.SetCompact(pindexPrev->nBits);
+    if(pindexBest->nHeight >= FORK_HEIGHT_2+10000)
+		 {
+    int64_t nInterval = nTargetTimespan2 / TARGET_SPACING_2;
+		 }else
+		 {
     int64_t nInterval = nTargetTimespan / TARGET_SPACING_2;
+		 }
     bnNew *= ((nInterval - 1) * TARGET_SPACING_2 + nActualSpacing + nActualSpacing);
     bnNew /= ((nInterval + 1) * TARGET_SPACING_2);
 
