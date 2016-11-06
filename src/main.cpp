@@ -1424,12 +1424,13 @@ static unsigned int GetNextTargetRequired_(const CBlockIndex* pindexLast, bool f
     // ppcoin: retarget with exponential moving toward target spacing
     CBigNum bnNew;
     bnNew.SetCompact(pindexPrev->nBits);
+    int64_t nInterval;
     if(pindexBest->nHeight >= FORK_HEIGHT_2+10000)
 		 {
-    int64_t nInterval = nTargetTimespan2 / TARGET_SPACING_2;
+    nInterval = nTargetTimespan2 / TARGET_SPACING_2;
 		 }else
 		 {
-    int64_t nInterval = nTargetTimespan / TARGET_SPACING_2;
+    nInterval = nTargetTimespan / TARGET_SPACING_2;
 		 }
     bnNew *= ((nInterval - 1) * TARGET_SPACING_2 + nActualSpacing + nActualSpacing);
     bnNew /= ((nInterval + 1) * TARGET_SPACING_2);
