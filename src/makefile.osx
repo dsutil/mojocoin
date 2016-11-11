@@ -8,21 +8,20 @@
 
 CXX=clang++
 C=clang
-DEPSDIR=/usr/local
+DEPSDIR=/opt/local
 
 INCLUDEPATHS= \
  -I"$(CURDIR)" \
  -I"$(CURDIR)"/obj \
  -I"$(DEPSDIR)/include" \
- -I"$(DEPSDIR)/Cellar/boost/1.59.0/include" \
- -I"$(DEPSDIR)/Cellar/berkeley-db4/4.8.30/include" \
- -I"$(DEPSDIR)/openssl-1.0.1p/include"
+ -I"$(DEPSDIR)/include/db48" \
+ -I"$(DEPSDIR)/include/boost"
+
 
 LIBPATHS= \
  -L"$(DEPSDIR)/lib" \
- -L"$(DEPSDIR)/Cellar/boost/1.59.0/lib" \
- -L"$(DEPSDIR)/Cellar/berkeley-db4/4.8.30/lib" \
- -L"$(DEPSDIR)/openssl-1.0.1p/lib"
+ -L"$(DEPSDIR)/lib/db48"
+
 
 USE_UPNP:=1
 USE_WALLET:=1
@@ -33,22 +32,24 @@ ifdef STATIC
 # Build STATIC if you are redistributing the mojocoind binary
 LIBS += \
  $(DEPSDIR)/lib/db48/libdb_cxx-4.8.a \
- $(DEPSDIR)/lib/libboost_system.a \
- $(DEPSDIR)/lib/libboost_filesystem.a \
- $(DEPSDIR)/lib/libboost_program_options.a \
+ $(DEPSDIR)/lib/libboost_system-mt.a \
+ $(DEPSDIR)/lib/libboost_filesystem-mt.a \
+ $(DEPSDIR)/lib/libboost_program_options-mt.a \
  $(DEPSDIR)/lib/libboost_thread-mt.a \
  $(DEPSDIR)/lib/libssl.a \
  $(DEPSDIR)/lib/libcrypto.a \
+  $(DEPSDIR)/lib/libgmp.a \
  -lz
 else
 LIBS += \
  -l db_cxx-4.8 \
- -l boost_system \
- -l boost_filesystem \
- -l boost_program_options \
+ -l boost_system-mt \
+ -l boost_filesystem-mt \
+ -l boost_program_options-mt \
  -l boost_thread-mt \
  -l ssl \
  -l crypto \
+ -l gmp \
  -l event \
  -l z
 endif
@@ -282,14 +283,14 @@ obj/%.o: %.c
 	  rm -f $(@:%.o=%.d)
 
 obj/%.o: tor/%.c
-	$(CC) -c $(xCXXFLAGS) -MMD -MF $(@:%.o=%.d) -o $@ $<
+	$(CC) -c $(CFLAGS) -MMD -MF $(@:%.o=%.d) -o $@ $<
 	@cp $(@:%.o=%.d) $(@:%.o=%.P); \
 	sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
 		-e '/^$$/ d' -e 's/$$/ :/' < $(@:%.o=%.d) >> $(@:%.o=%.P); \
 	rm -f $(@:%.o=%.d)
 
 obj/%.o: tor/mojocoin.cpp
-	$(CXX) -c $(xCXXFLAGS) -MMD -MF $(@:%.o=%.d) -o $@ $<
+	$(CXX) -c $(CFLAGS) -MMD -MF $(@:%.o=%.d) -o $@ $<
 	@cp $(@:%.o=%.d) $(@:%.o=%.P); \
 	sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
 		-e '/^$$/ d' -e 's/$$/ :/' < $(@:%.o=%.d) >> $(@:%.o=%.P); \
