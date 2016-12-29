@@ -761,7 +761,7 @@ contains(RELEASE, 1) {
 
 !windows:!macx {
     DEFINES += LINUX
-    LIBS += -lrt -ldl
+    LIBS += -lrt -ldl -lgmp
 }
 
 system($$QMAKE_LRELEASE -silent $$_PRO_FILE_)
